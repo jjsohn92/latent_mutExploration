@@ -17,4 +17,3 @@
         │      project_bid.chg_features.json: change features of propagated mutants
         └───pred: latent mutant prediction 
                debt_time_thr365/all|rd|wo_mutop: prediction results
-    ```
