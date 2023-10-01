@@ -120,17 +120,8 @@ def addMissingInfixOps(
                 infix_op_txt = op_convert(infix_op_txt)
     
                 ## for current file content
-                #####
-                ### -> need to consider that the element, either prev_e or curr_e might be deleted 
                 prev_e_at_curr = getFrirstUndeletedPrevOrCurr(es, i - 1, for_prev = True)
                 curr_e_at_curr = getFrirstUndeletedPrevOrCurr(es, i, for_prev = False)
-                #if prev_e_at_curr is None and curr_e_at_curr is not None:
-                #    print (p.attrib)
-                #    print (curr_e_at_curr.attrib)
-                #    with open("a.pkl", 'rb') as f:
-                #        import pickle
-                #        pickle.dump(codeTree, f)
-                #    sys.exit()
                 other_pos_prev, other_length_prev = getOtherPosAndLength(prev_e_at_curr)
                 if other_pos_prev is None:
                     oth_start_of_infix_op = None #oth_end_of_prev
@@ -140,14 +131,6 @@ def addMissingInfixOps(
                     #oth_end_of_prev = int(prev_e.attrib['other_pos']) + int(prev_e.attrib['other_length']) 
                     oth_end_of_prev = other_pos_prev + other_length_prev
                     oth_start_of_curr, _ = getOtherPosAndLength(curr_e_at_curr) # can be None
-                    #if oth_start_of_curr is None:
-                    #    print (prev_e_at_curr, curr_e_at_curr)
-                    #    print (curr_e_at_curr.attrib)
-                    #    with open("a.pkl", 'wb') as f:
-                    #        import pickle
-                    #        pickle.dump(codeTree, f)
-                    #    sys.exit()
-                    #oth_start_of_curr = int(curr_e.attrib['other_pos'])
                     oth_infix_op = curr_file_conent[oth_end_of_prev:oth_start_of_curr]
                     ##
                     oth_start_of_infix_op = oth_end_of_prev
@@ -165,9 +148,6 @@ def addMissingInfixOps(
                     msg = f"{oth_infix_op_txt}" 
                     msg += f" (vs {curr_file_conent[oth_start_of_infix_op:oth_end_of_infix_op]}): {oth_n} vs {oth_length_of_infix_op}"
                     assert oth_n == oth_length_of_infix_op, msg 
-                #   ## generate and append
-                    #e_str = f'<tree type="INFIX_EXPRESSION_OPERATOR" label="{infix_op_txt}" pos="{start_of_infix_op}" length="{length_of_infix_op}"></tree>'
-                    #infix_op_txt = op_convert(infix_op_txt)
                     oth_infix_op_txt = op_convert(oth_infix_op_txt)
 
                 # set string 
@@ -283,13 +263,9 @@ def processABFile_gumtree(a_fileContent:str, b_fileContent, ret_added:bool = Fal
         assert False #
         #return None
     java_utils.changeJavaVer(8, use_sdk=False)
-    #tree = ET.parse(outputfile) # if we want to add missing Infix ops -> here is the place
     tree = ET.fromstring(output)
     ###
-    tree = addMissingInfixOps(tree, a_fileContent, b_fileContent, ret_added = ret_added) # ... acutally for this, we need to think more about the pos and other pos here ... and
-    ###
-    # cleaning
-    #os.remove(outputfile)
+    tree = addMissingInfixOps(tree, a_fileContent, b_fileContent, ret_added = ret_added) 
     os.remove(f"temp_a_{ts}.java")
     os.remove(f"temp_b_{ts}.java")
     if not ret_added: # only tree
@@ -349,8 +325,8 @@ def mapPositions_fromList(
             other_length = int(e.attrib['other_length'])
             other_end = other_pos + other_length 
             other_label = e.attrib['other_label']
-        else: # deleted -> for this... we will skip it as for this one is deleted (the same procedure was done in mapPositions and diffMaps (here, automatically excluded by RMiiner)
-            continue 
+        else: 
+            continue
 
         data['prev_type'].append(e_type)
         data['prev_pos'].append([pos, end])

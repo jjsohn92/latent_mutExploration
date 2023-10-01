@@ -1,0 +1,263 @@
+<!--
+Copyright (c) 2014-2017 René Just, Darioush Jalali, and Defects4J contributors.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+################################################################################
+                     This is the main Defects4J build file.
+
+It defines properties and targets valid for all projects. It also imports the
+build file that defines all export targets (defect4j.export.xml) and the
+project-specific build file ("project_id"/"project_id".build.xml) for the
+"project_id" (Lang, Math, etc.) of the checked-out project version.
+#############################################################################-->
+<project name="Defects4J" basedir="${basedir}">
+    <!-- Ensure basedir is properly set -->
+    <property name="d4j.workdir" value="${basedir}" />
+    <!-- The default location for the projects meta data -->
+    <property name="d4j.dir.projects" value="${d4j.home}/framework/projects" />
+    <taskdef resource="net/sf/antcontrib/antlib.xml"
+            classpath="${d4j.home}/framework/lib/ant-contrib.jar"/>
+
+    <!-- Dependencies used by all projects -->
+    <property name="junit.jar"  value="${d4j.home}/framework/projects/lib/junit-4.11.jar"/>
+    <property name="cobertura.jar" value="${d4j.home}/framework/projects/lib/cobertura-2.0.3.jar"/>
+
+    <!-- Location of libraries of test generation tool-->
+    <property name="d4j.dir.lib.testgen.gen" value="${d4j.home}/framework/lib/test_generation/generation"/>
+    <!-- Location of runtime libraries of test generation tools-->
+    <property name="d4j.dir.lib.testgen.rt" value="${d4j.home}/framework/lib/test_generation/runtime"/>
+    <!-- All runtime libraries of test generation tools (necessary to run generated tests)-->
+    <path id="d4j.lib.testgen.rt">
+        <fileset dir="${d4j.dir.lib.testgen.rt}" includes="*-rt.jar" />
+    </path>
+
+    <!-- Location of customized JUnit formatter-->
+    <property name="formatter.jar" value="${d4j.home}/framework/lib/formatter.jar"/>
+    <!-- Directory of compiled test-gen classes -->
+    <property name="d4j.dir.classes.testgen" value="${d4j.workdir}/.classes_testgen"/>
+    <!-- Directory of instrumented classes (e.g., for coverage analysis)-->
+    <property name="d4j.dir.classes.instrumented" value="${d4j.workdir}/.classes_instrumented"/>
+    <!-- Directory of mutated classes-->
+    <property name="d4j.dir.classes.mutated" value="${d4j.workdir}/.classes_mutated"/>
+    <!-- Directory of coverage reports-->
+    <property name="d4j.dir.coverage.report" value="${d4j.workdir}" />
+    <!-- Data file that holds coverage information-->
+    <property name="d4j.file.cobertura.ser" value="cobertura.ser" />
+
+    <!-- Include project-specific build file -->
+    <import file="${d4j.dir.projects}/${d4j.project.id}/${d4j.project.id}.build.xml"/>
+
+<!--
+     Check whether all properties and paths are configured
+-->
+    <target name="sanity.check" description="Check whether project version is correctly set up">
+        <fail unless="d4j.home"/>
+        <fail unless="test.home"/>
+        <fail unless="build.home"/>
+        <fail unless="ant.refid:d4j.test.classpath"/>
+        <fail unless="ant.refid:compile.classpath"/>
+        <fail unless="ant.refid:all.manual.tests" />
+    </target>
+
+<!--
+    Run developer-written tests
+-->
+    <target name="run.dev.tests" depends="compile.tests" description="Run unit tests">
+        <junit printsummary="yes" haltonfailure="no" haltonerror="no" fork="no" showOutput="true">
+            <classpath>
+                <!-- Make sure that instrumented classes appear at the beginning of the
+                     classpath -->
+                <pathelement location="${d4j.dir.classes.instrumented}" />
+                <pathelement path="${formatter.jar}" />
+                <pathelement path="${cobertura.jar}" />
+                <path refid="d4j.test.classpath"/> <!-- in project.build.xml -->
+            </classpath>
+
+            <sysproperty key="OUTFILE" value="${OUTFILE}"/>
+            <formatter classname="edu.washington.cs.mut.testrunner.Formatter" usefile="false" />
+            <!--<test name="${test.entry.class}" methods="${test.entry.method}" if="test.entry.class" />-->
+	    <!--<batchtest unless="test.entry.class">
+                <fileset refid="all.manual.tests"/>
+            </batchtest>-->
+            <test name="${test.entry.class}" if="test.entry.class" />
+            <batchtest unless="test.entry.class">
+		<fileset dir="${test.classes.dir}" includes="${target.test.classes}"/>
+            </batchtest>
+        </junit>
+        <!-- fail build in case we are running all classes, but there are none in the fileset -->
+        <if> <not> <isset property="test.entry.class" /> </not> <then>
+            <pathconvert refid="all.manual.tests" property="fileset.notempty" setonempty="false" />
+            <fail unless="fileset.notempty" message="Test is running with empty fileset" />
+        </then> </if>
+    </target>
+
+    <target name="run.single.dev.test" depends="compile.tests" description="Run unit tests">
+        <junit printsummary="yes" haltonfailure="no" haltonerror="no" fork="no" showOutput="true">
+            <classpath>
+                <!-- Make sure that instrumented classes appear at the beginning of the
+                     classpath -->
+                <pathelement location="${d4j.dir.classes.instrumented}" />
+                <pathelement path="${formatter.jar}" />
+                <pathelement path="${cobertura.jar}" />
+                <path refid="d4j.test.classpath"/> <!-- in project.build.xml -->
+            </classpath>
+            <sysproperty key="OUTFILE" value="${OUTFILE}"/>
+            <formatter classname="edu.washington.cs.mut.testrunner.Formatter" usefile="false" />
+            <test name="${test.entry.class}" methods="${test.entry.method}"/>
+        </junit>
+    </target>
+
+    <target name="run.all.dev.tests" depends="compile.tests" description="Run all unit tests">
+        <junit printsummary="yes" haltonfailure="no" haltonerror="no" fork="no" showOutput="true">
+            <classpath>
+                <!-- Make sure that instrumented classes appear at the beginning of the
+                     classpath -->
+                <pathelement location="${d4j.dir.classes.instrumented}" />
+                <pathelement path="${formatter.jar}" />
+                <pathelement path="${cobertura.jar}" />
+                <path refid="d4j.test.classpath"/>
+            </classpath>
+            <sysproperty key="OUTFILE" value="${OUTFILE}"/>
+            <formatter classname="edu.washington.cs.mut.testrunner.Formatter" usefile="false" />
+            <batchtest>
+                <fileset refid="all.manual.tests" />
+            </batchtest>
+        </junit>
+        <!-- fail build in case we are running all classes, but there are none in the fileset -->
+        <if> <not> <isset property="test.entry.class" /> </not> <then>
+            <pathconvert refid="all.manual.tests" property="fileset.notempty" setonempty="false" />
+            <fail unless="fileset.notempty" message="Test is running with empty fileset" />
+        </then> </if>
+    </target>
+<!--
+    Run individual test and monitor class loader
+    Test has to be provided as property "test.entry" (class::method)
+    and the output is redirected to "test.output"
+-->
+    <target name="monitor.test" depends="compile.tests" description="Run a single test class or method and monitor class loader">
+        <fail message="Property test.entry not set!" unless="test.entry" />
+        <fail message="Property test.output not set!" unless="test.output" />
+
+        <java fork="true" classname="edu.washington.cs.mut.testrunner.SingleTestRunner"
+              output="${test.output}" failonerror="true" logError="true">
+
+            <arg value="${test.entry}"/>
+            <jvmarg value="-verbose:class"/>
+            <classpath>
+                <pathelement path="${formatter.jar}" />
+                <pathelement path="${junit.jar}" />
+                <!--<pathelement path="${d4j.dir.classes.testgen}" />-->
+                <path refid="d4j.test.classpath"/>
+                <!-- Add dependencies to runtime libraries of test generation tools -->
+                <!--<path refid="d4j.lib.testgen.rt"/>-->
+            </classpath>
+        </java>
+    </target>
+
+<!--
+    Instrument for cobertura
+    TODO: Clean up the confusing classpath IDs and property names
+-->
+    <property name="cobertura.dir" value="${d4j.home}/framework/projects/lib/" />
+    <path id="cobertura.classpath">
+        <fileset dir="${cobertura.dir}">
+            <include name="cobertura-2.0.3.jar" />
+            <include name="cobertura-lib/**/*.jar" />
+        </fileset>
+    </path>
+    <taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+
+    <path id="cobertura.classpath.include" />
+
+    <target name="coverage.instrument" depends="compile" unless="classes.instrumented.uptodate">
+        <pathconvert refid="cobertura.classpath" property="cobertura.classpath.property" />
+
+        <delete dir="${d4j.dir.classes.instrumented}"/>
+        <delete file="${d4j.workdir}/${d4j.file.cobertura.ser}"/>
+        <cobertura-instrument failOnError="true" toDir="${d4j.dir.classes.instrumented}" datafile="${d4j.workdir}/${d4j.file.cobertura.ser}">
+            <fileset dir="${classes.dir}" includes="${d4j.classes.instrument}" />
+            <auxClasspath>
+                <path refid="compile.classpath" />
+            </auxClasspath>
+        </cobertura-instrument>
+        <!-- Backup instrumented classes and empty data file -->
+        <!--<copy file="${d4j.workdir}/${d4j.properties}" todir="${d4j.dir.classes.instrumented}" overwrite="true"/>-->
+        <copy file="${d4j.workdir}/${d4j.file.cobertura.ser}" todir="${d4j.dir.classes.instrumented}" overwrite="true"/>
+    </target>
+
+    <target name="coverage.report">
+        <mkdir dir="${d4j.dir.coverage.report}" />
+        <!-- <cobertura-report format="html" destdir="${coverage.dir}" srcdir="${coverage.src.dir}" /> -->
+        <cobertura-report format="xml" destdir="${d4j.dir.coverage.report}" srcdir="${coverage.src.dir}" />
+    </target>
+
+
+<!-- added -->
+	<target name="export.compile.classpath">
+		<pathconvert property="ret_compile_classpath" refid="compile.classpath"/>
+		<echo message="${ret_compile_classpath}"/>
+	</target>
+	<target name="export.test.classpath">
+		<pathconvert property="ret_test_classpath" refid="d4j.test.classpath"/>
+		<echo message="${ret_test_classpath}"/>
+	</target>
+	
+	<target name="export.source.home">
+		<echo message="${source.home}"/>
+	</target>
+
+	<target name="has.source.home">
+		<condition property="source.home.set" else="false">
+			<isset property="source.home"/>
+		</condition>
+		<echo message="${source.home.set}" />
+	</target>
+
+        <target name="export.test.home">
+                <echo message="${test.home}"/>
+        </target>
+
+        <target name="has.test.home">
+                <condition property="source.test.set" else="false">
+                        <isset property="test.home"/>
+                </condition>
+                <echo message="${test.home.set}" />
+        </target>
+	
+        <target name="export.test.classes.dir">
+                <echo message="${test.classes.dir}"/>
+        </target>
+<!-- pit -->
+<!--        <path id="pitest.path">
+                <pathelement location="/Users/jeongju.sohn/workdir/tools/pitest/pitest/pitest-ant/target/pitest-ant-dev-SNAPSHOT.jar" />
+        </path>
+	<taskdef name="pitest" classname="org.pitest.ant.PitestTask" classpathref="pit.path" />
+
+	<target name="mutationCoverage">
+    		<pitest
+        		pitClasspath="pit.path"
+		        classPath="mutation.path"
+        		targetClasses="com.yourcodebase.*"
+	        	targetTests="com.yourcodebase.*"
+	        	reportDir="pathToWhereYouWantOutput"
+		        sourceDir="pathToYourSource"/>
+	</target>-->
+
+</project>

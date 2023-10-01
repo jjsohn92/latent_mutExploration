@@ -4,14 +4,11 @@ utilities related to git
 import git
 import pandas as pd
 from typing import List, Dict, Tuple
-
 git_show_args = ["--ignore-all-space", "--ignore-blank-lines"]
-
 def get_repo(repo_path:str) -> git.Repo:
     return git.Repo(repo_path)
 
 def get_tags(repo_path:str) -> Dict[str, Tuple]: 
-    # this will return all tags -> which is not what I wanted 
     repo = get_repo(repo_path)
     tags = list(git.TagReference.list_items(repo))
     tag_points_at = {}
@@ -69,15 +66,11 @@ def show_file(commit_hash:str, file_path:str, repo_path:str) -> str:
     here .. need to think about subproject case (...)
     """
     import subprocess 
-    #try:
     cmd = f"git show {commit_hash}:{file_path}" \
         if file_path is not None else f"git show {commit_hash}"
-    #print (cmd)
     output = subprocess.check_output(
         cmd, shell = True, cwd = repo_path
         ).decode('utf-8', 'backslashreplace')
-    #except subprocess.CalledProcessError as e:
-    #    pass
     return output 
 
 def get_commits_upto_recent(
@@ -105,14 +98,6 @@ def get_commits_upto_recent(
             break 
     assert idxToCut is not None, f"{startCommit}..{recent_commit_hexsha}"
     btwn_commits = cs[:idxToCut + 1]
-    # new end
-    #if branch_name is not None:
-    #    logoutput = repo.git.log(branch_name, "--oneline", f"{startCommit}..{recent_commit_hexsha}")
-    #else:
-    #    logoutput = repo.git.log("--oneline", f"{startCommit}..{recent_commit_hexsha}")
-    #print ("==",  f"{startCommit}..{recent_commit_hexsha}")
-    #btwn_commits = [line.split(" ")[0] for line in logoutput.split("\n")]
-    #btwn_commits.append(startCommit)
     btwn_commits.reverse() # oldest to the recent
     return btwn_commits
 
@@ -205,9 +190,6 @@ def getModifiedAts(
     else:
         logout = g.log("-L", f"{mutStartLno},{mutEndLno}:{fpath}")
     all_commits = getAllCommits(repo_path, None)
-    #cmd = f"git blame -L {mutStartLno},{mutEndLno} {fpath}"
-    #import subprocess
-    #ot
     commits_last_modified = []
     prev_to_commits_last_modified = []
     diff_files = []
@@ -258,10 +240,7 @@ def getModifiedAts(
                 continue
             else:
                 _commits_last_modified.append(c)
-            #os.remove(fileA)
-            #os.remove(fileB)
         commits_last_modified = _commits_last_modified
-    #assert len(diff_files) == len(commits_last_modified), f"{len(diff_files)} vs {len(commits_last_modified)}"
     return commits_last_modified
 
 def getModifiedAts_v2(

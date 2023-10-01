@@ -3,14 +3,11 @@ Here, check whether the changes are made on non-semantic part or not
 """
 import os, sys
 from typing import List, Dict, Tuple
-from utils.java_utils import changeJavaVer, getJavaVersion, setJavaHome
 import xml.etree.ElementTree as ET
 
-### new ####
 def compareFile(fileA:str, fileB:str) -> bool:
     # used to filter out commit with no meaningfull changes
     contentA = process(fileA) 
-    #contentA = [tk for tk in contentA if ]
     contentB = process(fileB)
     # for comparision 
     import re
@@ -22,9 +19,6 @@ def compareLine(
     fileA:str, lnoA:int, fileB:str, lnoB:int, 
     computeSimScore:bool = False
 ):
-    # used to compare the lines without 
-    #lineA = "".join(process(fileA, lnoA))
-    #lineB = "".join(process(fileB, lnoB)) 
     lineA = " ".join(process(fileA, lnoA))
     lineB = " ".join(process(fileB, lnoB)) 
     if computeSimScore:
@@ -83,18 +77,6 @@ def getElementsAtLnoInOrder(startElement:ET.Element, lno:int):
             yield startElement
     for e in startElement:
         yield from getElementsAtLnoInOrder(e, lno)
-    #tag = startElement.tag
-    #if not isinstance(tag, str) and tag is not None:
-        #return
-    #t = startElement.text
-    #if t:
-        #yield t
-    #for e in startElement:
-        #yield from genAbstractedCode(e)
-        #t = e.tail
-        #if t:
-            #yield t
-
 
 def genAbstractedCodeLine(
     startElement:ET.Element, lno:int
@@ -158,10 +140,8 @@ def genAbstractedCode_byList(elems:List[ET.Element]) -> List[str]:
         t = e.text
         if t: 
             ret.append(t)
-            #print ("t", t, 'end')
         tail = e.tail 
         if tail: 
-            #print ("tail", tail, 'end')
             ret.append(tail)
     return ret
             

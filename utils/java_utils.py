@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple 
+from typing import List, Dict 
 import os 
 
 def changeJavaVer(ver:int, use_sdk:bool = False): # better to be always false
@@ -72,25 +72,6 @@ def getFullTestClasses(testPat:str, test_classes_dir:str) -> str:
             testclasses.append(path)
     return ",".join(testclasses)
 
-#def writeTargetTests(
-    #work_dir:str, testPat:str, use_full_path:bool = False, test_dir:str = None
-#) -> str:
-    ## testPat: expected to be concatentated with comma 
-    #targetTestClassesFile = os.path.join(work_dir, "temp.test.properties")
-    #to_write = []
-    #for atestPat in testPat.split(","):
-        #if not use_full_path:
-            #atestPat = os.path.basename(atestPat) 
-            #full_atestPat = os.path.join("**", atestPat)
-        #else:
-            #atestPat = atestPat.replace(".", "/") + '.class'
-            #if test_dir.endswith("/"): test_dir = test_dir[:-1]
-            #full_atestPat = atestPat.replace(test_dir, "**") # **/org/.... *.class
-        #to_write.append(full_atestPat)
-    #with open(targetTestClassesFile, 'w') as f:
-        #to_write_str = ",".join(to_write)
-        #f.write(f"target.test.classes={to_write_str}")
-    #return targetTestClassesFile 
 def writeTargetTests(work_dir:str, testPat:str) -> str:
     # testPat: expected to be concatentated with comma 
     targetTestClassesFile = os.path.join(work_dir, "temp.test.properties")
@@ -126,11 +107,6 @@ def getTargetClasses_d4j(
             targetClasses.append(_class)
     merged_targetClasses = ",".join(targetClasses)
     return merged_targetClasses
-
-
-# Try to skip those related to locale and time -> we will likely get additional errors due to them
-def selectTargetFiles():
-    pass 
 
 def getJavaVersion():
     return os.environ['JAVA_HOME']

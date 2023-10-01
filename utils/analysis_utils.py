@@ -20,9 +20,6 @@ def getBidRevDict(d4j_home:str, project:str, get_buggy:bool = False) -> Tuple[Di
     return bidToRev, revToBid
 
 def getToFoucsBugs(targetdir:str, project:str, onlySemChgd:bool = False, fulldir:str =  None) -> List[int]:
-    # toFoucsBug:
-    #   a fixed version with at least one "survived" mutant injected at the place that will go through a semantic change 
-    #   => this is to focus on cases where we can find interesting and also compare wit those less interesing 
     if fulldir is None:
         toFoucsFile = os.path.join(targetdir, f"toFocus/{project}.csv" if not onlySemChgd else f"toFocus/wSemChgd/{project}.csv")
     else:
@@ -138,32 +135,6 @@ def computeMutLevel(isNotRefactoring:bool, isSemanticChange:bool, isChanged:bool
     else: # not changed at all
         return 4
 
-def computeRevealedMutType_v1(isNotRefactoring:bool, isSemanticChange:bool, revealedAt:str, modifiedAts:List[str]) -> int:
-    """
-    -> these are on the "first" revealing points 
-    Here, semantic change actually refers to semnatic change & not refactoriung 
-    Five level: 
-    - sc_c, sc_nc
-    - rc_c, rc_nc
-    - nc_nc
-    """
-    if isSemanticChange:
-        if isNotRefactoring:
-            #if revealedAt == modifiedAt:
-            if revealedAt in modifiedAts:
-                return "sc_c"
-            else:
-                return "sc_nc"
-        else:
-            #if revealedAt == modifiedAt:
-            if revealedAt in modifiedAts:
-                return "rc_c"
-            else:
-                return "rc_nc"
-    else:
-        #if revealedAt == modifiedAt:
-        return "nc_nc" 
-
 def computeRevealedMutType(isNotRefactorings:List[bool], isSemanticChanges:List[str], revealedAt:str, modifiedAts:List[str]) -> List:
     """
     -> these are on the "first" revealing points 
@@ -176,9 +147,7 @@ def computeRevealedMutType(isNotRefactorings:List[bool], isSemanticChanges:List[
     #
     rv_flag = 'c' if revealedAt in modifiedAts else 'nc'
     chg_status = []
-    #print ("--", isNotRefactorings, isSemanticChanges)
     for isNotRefactoring, isSemanticChange in zip(isNotRefactorings, isSemanticChanges):
-        #print ("======", isSemanticChange, isNotRefactoring)
         if isSemanticChange:
             if isNotRefactoring: # if we encounter any of this case, then 
                 return f"sc_{rv_flag}", True, True, True, True 
@@ -189,7 +158,6 @@ def computeRevealedMutType(isNotRefactorings:List[bool], isSemanticChanges:List[
     if 'rc' in  chg_status:
         return f'rc_{rv_flag}', False, False, True, True 
     else:
-        #assert rv_flag == 'nc', f"{rv_flag}, {chg_status}"
         if rv_flag != 'nc': rv_flag = 'nc' # for non-semantic change 
         return f"nc_{rv_flag}", False, False, False, False 
 
@@ -313,13 +281,10 @@ def computeTechnicalDebt(
         for info in mutInfoLst: # for each diverged mutant case
             (isNotRefactoring, isSemanticChange, isChanged), others = processInfos(info)
             mutatedAt, revealedAt, modifiedAt = others[0]
-            #idxToMutatedAt = allCommits.index(mutatedAt)
             idxToMutatedAt = getCommitIndex(allCommits, mutatedAt)
-            #idxToRevealedAt = allCommits.index(revealedAt)
             idxToRevealedAt = getCommitIndex(allCommits, revealedAt)
             #
             n_btwn_commits = idxToMutatedAt - idxToRevealedAt
-            #assert n_btwn_commits >= 0, f"{row.bid} {row.mut}: {mutatedAt} vs {revealedAt}"
             assert n_btwn_commits >= 0, f"{mutKey}: {mutatedAt} vs {revealedAt} ({modifiedAt})"
             n_btwn_commits_lst.append(n_btwn_commits)
             #
@@ -341,10 +306,7 @@ def computeTechnicalDebt(
             #
         max_nbtcs = max(n_btwn_commits_lst)
         idx_to_max = n_btwn_commits_lst.index(max_nbtcs)
-        #sum_nbtcs = sum(n_btwn_commits_lst) -> for this, need to group mutants per diverged case (matchedFpath, mutatedAtRevealLno)
         max_dbtcs = days_btwn_commits_lst[idx_to_max]
-        #sum_dbtcs = sum(days_btwn_commits_lst)
-        # between mutatedAt and revelatedAt, ...
         cntNotRefAndSemantic_at_max = chg_cnts[mut_dvgd_ks[idx_to_max]]['isNotRefAndSemChg']
         cntIsSemanticChange_at_max = chg_cnts[mut_dvgd_ks[idx_to_max]]['isSemanticChange']
         cntIsChanged_at_max = chg_cnts[mut_dvgd_ks[idx_to_max]]['isChanged']
@@ -452,26 +414,18 @@ def getInitMutStatus(
             all_mutants = _all_mutants
         #            
         n_all = len(all_mutants)
-        #killed_muts = tree.findall("mutation/[@status = 'KILLED']")
         killed_muts = get_muts(all_mutants, 'KILLED')
         n_killed = len(killed_muts)
-        #no_covg_muts = tree.findall("mutation/[@status = 'NO_COVERAGE']")
         no_covg_muts = get_muts(all_mutants, 'NO_COVERAGE')
         n_no_covg = len(no_covg_muts)
-        #survived_muts = tree.findall("mutation/[@status = 'SURVIVED']")
         survived_muts = get_muts(all_mutants, 'SURVIVED')
         n_survived = len(survived_muts)
-        #timed_out_muts = tree.findall("mutation/[@status = 'TIMED_OUT']")
         timed_out_muts = get_muts(all_mutants, 'TIMED_OUT')
         n_timed_out = len(timed_out_muts)
-        #
-        #non_viable_muts = tree.findall("mutation/[@status = 'NON_VIABLE']")
         non_viable_muts = get_muts(all_mutants, 'NON_VIABLE')
         n_non_viable = len(non_viable_muts)
-        #memory_error_muts = tree.findall("mutation/[@status = 'MEMORY_ERROR']")
         memory_error_muts = get_muts(all_mutants, 'MEMORY_ERROR')
         n_memory_error = len(memory_error_muts)
-        #run_error_muts = tree.findall("mutation/[@status = 'RUN_ERROR']")
         run_error_muts = get_muts(all_mutants, 'RUN_ERROR')
         n_run_error = len(run_error_muts)
 
@@ -509,21 +463,6 @@ def get_checking_properties(e) -> List[str]:
             v = e.find(needToCheck).text
         properties.append(v)
     return properties
-#def check_the_same_muts(e1, e2) -> bool:
-    #"""
-    #compare sourceFile, line
-    #"""
-    #needToCheck_lst = ['status', 'sourceFile', 'lineNumber', 'index', 'block', 'description']
-    #for needToCheck in needToCheck_lst:
-        #if needToCheck == 'status':
-            #v1 = e1.attrib[needToCheck]
-            #v2 = e2.attrib[needToCheck]
-        #else:
-            #v1 = e1.find(needToCheck).text
-            #v2 = e2.find(needToCheck).text
-        #if v1 != v2:
-            #return False
-    #return True 
 
 def getInitMutStatus_of_unique(
     root_outputdir:str, 
@@ -661,8 +600,6 @@ def get_mutator_freq(
     root_outputdir = os.path.join(root_outputdir, project + "/inter")
     mutfiles = glob.glob(os.path.join(root_outputdir, "**/mutations.xml"))
     init_mutator_freq = gen_init_mutator_freq(only_unique)
-    #print (only_unique, init_mutator_freq.keys())
-    #
     for mutfile in tqdm(mutfiles):
         rev = os.path.dirname(mutfile).split("/")[-1]
         tree = ET.parse(mutfile)
@@ -713,7 +650,6 @@ def getToSaveFiles(dest:str, project:str, commit_hash:str) -> Tuple[str]:
     revealed_mut_file = os.path.join(dest, f"{final_output_key}.revealed.pkl")
     surv_mut_file = os.path.join(dest, f"{final_output_key}.survived.pkl")
     mut_deadat_file = os.path.join(dest, f"{final_output_key}.mutDeadAt.pkl")
-    #mut_deadat_file = os.path.join(dest, f"deadmuts/{final_output_key}.mutDeadAt.pkl")
     refactoring_file = os.path.join(dest, f"{final_output_key}.refactorings.pkl")
     return (revealed_mut_file, surv_mut_file, mut_deadat_file, refactoring_file)
 
@@ -749,11 +685,6 @@ def get_mut_refactor_status(outputdir:str, project:str,
         return list(set([mapped_to_uniq_mutK[target] for target in targets if target not in filtered]))
 
     if all_processed: # meaning reach to the end
-        #import pickle 
-        #mutLR_file = os.path.join(outputdir, project, "inter", fixedRev, 'mutLRPair_pfile.pkl')
-        # get the list of targeted mutants 
-        #with open(mutLR_file, 'rb') as f:
-        #    muts = pickle.load(f) 
         # this will automatically filter out those 
         filtered, grouped, mapped_to_uniq_mutK = group_same_mutants(outputdir, project, fixedRev, 
             needToFilterOps = needToFilterOps, 
@@ -769,12 +700,9 @@ def get_mut_refactor_status(outputdir:str, project:str,
         survivedMuts = mapToUniqueMuts(survivedMuts, mapped_to_uniq_mutK, filtered)
         survivedMuts = list(set([mutK for mutK in survivedMuts if mutK not in formatted_invalid_mutKs]))
         # get revealed mutants 
-        #revealdMuts = list(map(format_mutK, getRevealedMutKs(revealed_mut_file)))
-        ## need to filter out those that are not in the latest list ->  temporary 
         import glob 
         revealed_files = glob.glob(os.path.join(outputdir, project, "inter", fixedRev, "revealedAt.*.json"))
         revealdMuts = []
-        #print ('revealed files', revealed_files)
         for revealed_file in revealed_files:
             import json 
             with open(revealed_file) as f:
@@ -800,35 +728,15 @@ def get_mut_refactor_status(outputdir:str, project:str,
                     #print('revealed', f"{fpath}-{mutNo}")
         revealdMuts = list(set(revealdMuts))             
         revealdMuts = list(map(format_mutK, revealdMuts))
-        #for rvm in revealdMuts:
-        #    if rvm not in filtered:
-        #        try:
-        #            _ = mapped_to_uniq_mutK[rvm]
-        #        except KeyError:
-        #            print (rvm)
-        #print (mapped_to_uniq_mutK)
-        #print(revealdMuts)
-        #print ([v.split('-')[1] for v in filtered])
         revealdMuts = mapToUniqueMuts(revealdMuts, mapped_to_uniq_mutK, filtered)
         revealdMuts = list(set([mutK for mutK in revealdMuts if mutK not in formatted_invalid_mutKs]))
-        # 
         pure_deadMuts = list(set(deadMuts) - set(revealdMuts))
-        ### filter those remained due to using redundant mutants for the first trial 
         survivedMuts = list(set(survivedMuts) - set(revealdMuts))
-        # 
         survivedMuts = list(set(survivedMuts) - set(deadMuts))
-        ###
-        # take union for checking 
-        processed_muts = set(pure_deadMuts + survivedMuts + revealdMuts)
-        muts_belong_nowhere = list(set(grouped.keys()) - processed_muts)
-        muts_belong_nowhere = [mutK for mutK in muts_belong_nowhere if mutK not in formatted_invalid_mutKs]
-        assert len(muts_belong_nowhere) == 0, f"{project}, {fixedRev}, {str(muts_belong_nowhere)}"
-        #return {'all':n_pure_dead + n_revealed + n_survived, 'surv':n_survived, 'reveal':n_revealed, 'dead':n_pure_dead}
-        return {'surv':survivedMuts, 'reveal':revealdMuts, 'dead':pure_deadMuts, 'nowhere':muts_belong_nowhere}
-    else: # this m
+        return {'surv':survivedMuts, 'reveal':revealdMuts, 'dead':pure_deadMuts}
+    else: 
         return None
-
-
+    
 def addBaseName(infoDf:pd.DataFrame):#, byIndex:bool = False):
     if len(infoDf) == 0:
         infoDf['fbasename'] = None 
@@ -840,11 +748,7 @@ def addBaseName(infoDf:pd.DataFrame):#, byIndex:bool = False):
         else:
             print ("Something is wrong...", infoDf.mutK.values[0])
             assert False  
-###
-#def getMutsDead(root_outputdir:str, project:str):
-    #pass 
-#def getMutsSurvived():
-    #pass 
+
 def getAllTargetedMutants(
     root_outputdir:str, project:str, revToBid:Dict[str, int]
 ) -> Dict[int, pd.DataFrame]:
@@ -852,7 +756,6 @@ def getAllTargetedMutants(
     import pickle 
     inter_outputdir = os.path.join(root_outputdir, project + "/inter")
     files = glob.glob(os.path.join(inter_outputdir, "*/mutLRPair_pfile.pkl"))
-    #ret_mutants = {'bid':[], 'mutK':[], 'mutatedAt':[], 'mutOp':[]} 
     ret_mutants = {}
     for file in files:
         mutatedAt = os.path.dirname(file).split("/")[-1] # mutated at 
@@ -878,9 +781,6 @@ def getDeadMutKs(mutFile:str) -> List[Tuple]:
     for (fpath,mutNo), deadAt in muts.items():
         if deadAt is not None:
             deadMuts.append(f"{fpath}-{mutNo}")
-    #deatMuts = [f"{fpath}-{mutNo}" for fpath,mutNo in muts.keys()]
-    #for (fpath, mutNo), deadAt in muts.items():
-    #    pass 
     return deadMuts
 
 def getSurvMuts(mutFile:str) -> List[Tuple]:
@@ -972,7 +872,6 @@ def getUniqueMutants(mutLRPair_pmut_pfile:Dict[str, Dict],
                 processed[k].append(mutK)
             except KeyError:
                 processed[k] = [mutK]
-
     # drop redundant
     uniq_mutants = dict()
     for k, the_same_muts in processed.items():
@@ -983,75 +882,6 @@ def getUniqueMutants(mutLRPair_pmut_pfile:Dict[str, Dict],
             uniq_mutants[fpath] = dict()
         uniq_mutants[fpath][mutNo] = mutLRPair_pmut_pfile[fpath][mutNo]
     return uniq_mutants
-
-
-def group_same_mutants_v1(outputdir:str, project:str, fixedRev:str, 
-    needToFilterOps:List[str] = None, needToFocusOps:List[str] = None, mutLRFile:str = None, 
-    regen_uniq:bool = False, 
-) -> Tuple[Dict[str,List[str]], Dict[str, str]]:
-    """
-    mutLRFile: should be the fpath to the all mutants file: mutLRPair_pfile.pkl
-    used for those revealed mutants: 
-    """
-    import pickle 
-    if mutLRFile is None:
-        mutLRFile = os.path.join(outputdir, project, "inter", fixedRev, "mutLRPair_pfile.pkl")
-    with open(mutLRFile, 'rb') as f:
-        mutLRPair_pmut_pfile = pickle.load(f)
-
-    filtered = []
-    processed = {} # key = (fpath-is_neg-pos[0]-pos[1]-right), value = 
-    for targetFile, mutInfos in mutLRPair_pmut_pfile.items():
-        for mutNo, mutInfo in mutInfos.items():
-            mutK = format_mutK(f"{targetFile}-{mutNo}")
-            mutOp = mutInfo['mutOp'][0]
-            # check whether to further process
-            if needToFocusOps is None:
-                if needToFilterOps is not None:
-                    if mutOp in needToFilterOps: 
-                        filtered.append(mutK); continue 
-            else:
-                if mutOp not in needToFocusOps: 
-                    filtered.append(mutK); continue 
-
-            lno, start_p, end_p = mutInfo['pos']
-            new_content = mutInfo['right']
-            is_neg = isinstance(mutInfo['text'], tuple)
-            k = (targetFile, lno, start_p, end_p, is_neg, new_content)
-            try:
-                processed[k].add(mutK)
-            except KeyError:
-                processed[k] = set([mutK])
-
-    if not regen_uniq:
-        #uniq_mutLRFile = os.path.join(outputdir, project, "inter", fixedRev, "uniq_mutLRPair_pfile.pkl")
-        uniq_mutLRFile = os.path.join(os.path.dirname(mutLRFile), 
-            "uniq_" + os.path.basename(mutLRFile))
-        with open(uniq_mutLRFile, 'rb') as f:
-            uniq_mutLRPair_pmut_pfile = pickle.load(f)
-    else:
-        uniq_mutLRPair_pmut_pfile = getUniqueMutants(mutLRPair_pmut_pfile, needToFocusOps, needToFilterOps)
-    #
-    grouped = {}
-    mapped_to_uniq_mutK = {}
-    ks = []
-    for targetFile, mutInfos in uniq_mutLRPair_pmut_pfile.items():
-        for mutNo, mutInfo in mutInfos.items():
-            mutK = format_mutK(f"{targetFile}-{mutNo}")
-            if mutK in filtered: continue
-            mutOp = mutInfo['mutOp'][0]
-            if needToFilterOps:
-                if mutOp in needToFilterOps: continue 
-            lno, start_p, end_p = mutInfo['pos']
-            new_content = mutInfo['right']
-            is_neg = isinstance(mutInfo['text'], tuple)
-            k = (targetFile, lno, start_p, end_p, is_neg, new_content)
-            ks.append(k)
-            the_same_mutants = processed[k]
-            grouped[mutK] = the_same_mutants
-            for mk in the_same_mutants:
-                mapped_to_uniq_mutK[mk] = mutK
-    return filtered, grouped, mapped_to_uniq_mutK
 
 def group_same_mutants(outputdir:str, project:str, fixedRev:str, 
     needToFilterOps:List[str] = None, needToFocusOps:List[str] = None, mutLRFile:str = None, 
@@ -1072,14 +902,6 @@ def group_same_mutants(outputdir:str, project:str, fixedRev:str,
         for mutNo, mutInfo in mutInfos.items():
             mutK = format_mutK(f"{targetFile}-{mutNo}")
             mutOp = mutInfo['mutOp'][0]
-            # check whether to further process
-            #if needToFocusOps is None:
-                #if needToFilterOps is not None:
-                    #if mutOp in needToFilterOps: 
-                        #filtered.append(mutK); continue 
-            #else:
-                #if mutOp not in needToFocusOps: 
-                    #filtered.append(mutK); continue 
             lno, start_p, end_p = mutInfo['pos']
             new_content = mutInfo['right']
             is_neg = isinstance(mutInfo['text'], tuple)
@@ -1091,7 +913,6 @@ def group_same_mutants(outputdir:str, project:str, fixedRev:str,
             all_mutKs.append(mutK)
 
     if not regen_uniq:
-        #uniq_mutLRFile = os.path.join(outputdir, project, "inter", fixedRev, "uniq_mutLRPair_pfile.pkl")
         uniq_mutLRFile = os.path.join(os.path.dirname(mutLRFile), 
             "uniq_" + os.path.basename(mutLRFile))
         with open(uniq_mutLRFile, 'rb') as f:
@@ -1102,7 +923,6 @@ def group_same_mutants(outputdir:str, project:str, fixedRev:str,
     covered = []
     grouped = {}
     mapped_to_uniq_mutK = {}
-    #ks = []
     for targetFile, mutInfos in uniq_mutLRPair_pmut_pfile.items():
         for mutNo, mutInfo in mutInfos.items():
             mutK = format_mutK(f"{targetFile}-{mutNo}")
@@ -1115,7 +935,6 @@ def group_same_mutants(outputdir:str, project:str, fixedRev:str,
             new_content = mutInfo['right']
             is_neg = isinstance(mutInfo['text'], tuple)
             k = (targetFile, lno, start_p, end_p, is_neg, new_content)
-            #ks.append(k)
             the_same_mutants = processed[k]
             grouped[mutK] = the_same_mutants
             for mk in the_same_mutants:
@@ -1125,7 +944,6 @@ def group_same_mutants(outputdir:str, project:str, fixedRev:str,
     return filtered, grouped, mapped_to_uniq_mutK
 
 def filter_invalid(record_file:str, to_look_mutKs:List[str]) -> List[str]:
-    # record_file: e.g., output/evaluation/mut_val_check/Lang/Lang_8_mut_valid_invalid.json
     with open(record_file) as f:
         import json 
         data = json.load(f)
@@ -1141,7 +959,6 @@ def filter_invalid(record_file:str, to_look_mutKs:List[str]) -> List[str]:
     return filtered 
 
 def get_formatted_muKs_to_invalid(record_file:str) -> Set[str]:
-    # record_file: e.g., output/evaluation/mut_val_check/Lang/Lang_8_mut_valid_invalid.json
     with open(record_file) as f:
         import json 
         data = json.load(f)
@@ -1160,25 +977,8 @@ def get_only_target_uniq_muts(to_look_mutKs, mapped_to_uniq_mutK:Dict[str,str]) 
         rets.append(new_mutK)
     return list(set(rets)) 
 
-#def match_processed_mut_w_raw_mut(mutated_fpath:str, mutInfo:Dict, element) -> bool:
-    ##import xml.etree.ElementTree as ET
-    #mutOp, description = mutInfo['mutOp']
-    #_mutOp = element.find("mutator").text.split(".")[-1]
-    #if mutOp != _mutOp: return False
-    #_mutatedClass = element.find("mutatedClass")
-    #if mutated_fpath.endswith(_sourceFile):
-        #_lno = element.find("lineNumber")
-        #if _lno != lno: return False 
-        #mutOp, description = mutInfo['mutOp']
-        ##
-        #_lno = element.find("lineNumber")
-        #_description = element.find("description").text
-        #_mutOp = element.find("mutator").text.split(".")[-1]
-        #_mutatedClass = element.find("mutatedClass")
-    #else:
-        #return False 
-
-def analyse_mutOp_and_mut_status(MUTOPS:List[str], df:pd.DataFrame, project:str, target_status:str, decimal_points:int, cnt_top_n_freqs, n_top:int):
+def analyse_mutOp_and_mut_status(MUTOPS:List[str], df:pd.DataFrame, project:str, 
+    target_status:str, decimal_points:int, cnt_top_n_freqs, n_top:int):
     import numpy as np
     percs = []
     line = ""
@@ -1206,11 +1006,9 @@ def analyse_mutOp_and_mut_status(MUTOPS:List[str], df:pd.DataFrame, project:str,
             line += " & -"
         else:
             if i in idx_to_max:
-                #line += " & \\textbf{" + str(perc) + "}"
                 line += " & \\cellcolor{blue!25}" + "\\textbf{" + str(perc) + "}"
                 cnt_top_n_freqs[i] += 1
             elif i in indices_to_remain_top:
-                #line += " & \\underline{" + str(perc) + "}"
                 line += " & \\cellcolor{green!25}" + str(perc)
                 cnt_top_n_freqs[i] += 1
             else:

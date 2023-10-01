@@ -1,23 +1,8 @@
 import subprocess
-from subprocess import CompletedProcess, TimeoutExpired, CalledProcessError
-from typing import List, Dict, Tuple 
-import os, sys, glob
-import shutil 
+from subprocess import CompletedProcess, TimeoutExpired
+import os
 
 ANT_HOME = os.getenv("ANT_HOME")
-
-def add_reportdir_to_batchtest():
-    pass
-
-def check_runstate(out:CompletedProcess, surpress:bool = False) ->bool:
-    if out.returncode == 0:
-        return True 
-    elif surpress:
-        print (f"Stderr: {out.stderr}")
-        return True 
-    else:
-        print (f"Stderr: {out.stderr}")
-        return False
 
 def mvn_call(repo_path:str, cmd:str, timeout:int, *args):
     cmd = ["mvn", cmd] + list(args)
@@ -32,7 +17,6 @@ def mvn_call(repo_path:str, cmd:str, timeout:int, *args):
         timeout = timeout
     )
     t2 = time.time()
-    #if out.returncode != 0:
     if (timeout is not None) and ((t2 - t1) > timeout):
         raise TimeoutExpired(
             cmd = cmd, 
@@ -40,16 +24,8 @@ def mvn_call(repo_path:str, cmd:str, timeout:int, *args):
             output = out.stdout, 
             err = out.stderr 
         )
-    #else:
-        #raise CalledProcessError(
-            #returncode = out.returncode,
-            #cmd = cmd, 
-            #stdout = out.stdout, 
-            #stderr = out.stderr
-        #)
     return out, cmd
 
-### need to complete
 def ant_call(repo_path:str, cmd:str, timeout:int, *args) -> bool:
     #ant_file = os.path.join(repo_path, "build.xml")
     cmd = [f"{ANT_HOME}/ant", cmd] + list(args)
@@ -63,7 +39,6 @@ def ant_call(repo_path:str, cmd:str, timeout:int, *args) -> bool:
         capture_output = True, 
         timeout = timeout)
     t2 = time.time()
-    #if bool(out.stderr) or out.returncode != 0:
     if (timeout is not None) and ((t2 - t1) > timeout):
         raise TimeoutExpired(
             cmd = cmd, 
@@ -71,13 +46,6 @@ def ant_call(repo_path:str, cmd:str, timeout:int, *args) -> bool:
             output = out.stdout, 
             err = out.stderr 
         )
-    #else:
-        #raise CalledProcessError(
-            #returncode = out.returncode,
-            #cmd = cmd, 
-            #stdout = out.stdout, 
-            #stderr = out.stderr
-        #)
     return out, cmd
 
 ## below should be modified

@@ -31,7 +31,6 @@ def ant_d4jbased_call(
         timeout = timeout
     )
     t2 = time.time()
-    #if out.returncode != 0:
     if (timeout is not None) and ((t2 - t1) > timeout):
         print (f"Timeout while running {cmd}")
         raise TimeoutExpired(
@@ -40,14 +39,6 @@ def ant_d4jbased_call(
             output = out.stdout, 
             err = out.stderr 
         )
-    #else:
-            #raise CalledProcessError(
-                #returncode = out.returncode,
-                #cmd = full_cmd, 
-                #stdout = out.stdout, 
-                #stderr = out.stderr
-            #)
-    #print (out.stdout.decode('utf-8', 'backslashreplace'))
     return out, full_cmd
 
 def export_property(

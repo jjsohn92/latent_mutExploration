@@ -9,10 +9,10 @@ the status of the set of covered tests (tests that covered the mutated method) w
 import os, sys 
 import pandas as pd 
 import pickle 
-from utils import git_utils, java_utils, file_utils, mvn_utils
+from utils import git_utils, java_utils, file_utils, mvn_utils, analysis_utils
 from utils import ant_d4jbased_utils, ant_mvn_utils
 from typing import List, Dict, Tuple
-import refactor
+import propagator
 import multiprocessing as mp
 import shutil 
 import traceback, logging
@@ -116,12 +116,17 @@ def run_w_pit(
     commonGID:str, 
     pit_jar_path:str = "mutants/pit/pitest-command-line-1.7.4-SNAPSHOT-jar-with-dependencies.jar",
     dest:str = "outputs", 
-    with_refactor:bool = True, 
+    with_propagate:bool = True, 
     d4j_home:str = None, 
     bid:int = None, 
     ant_or_mvn:str = True, 
-    use_strict:bool = False
 ):
+    def preprocess_lang(work_dir:str):
+        mvn_utils.preprocess_lang(work_dir) 
+        for target_fpath in target_fpaths:
+            target_basename = os.path.basename(target_fpath)
+            if target_basename == 'TypeUtils.java': return False
+        return True 
     # Dict: key = target_fpaht, value = test class pattern
     target_fpaths = list(targeted.keys())
     if d4j_home is None:
@@ -135,37 +140,16 @@ def run_w_pit(
     os.makedirs(dest, exist_ok=True)
     intermediate_dst = os.path.join(dest, f"inter/{commit_hexsha[:8]}")
     os.makedirs(intermediate_dst, exist_ok=True)
-    mutLRPair_file = os.path.join(intermediate_dst, "mutLRPair_pfile.pkl")
-    strict_mutLRPair_file = os.path.join(intermediate_dst, "strict." + os.path.basename(mutLRPair_file))
-    uniq_mutLRPair_file = os.path.join(intermediate_dst, "uniq_" + os.path.basename(mutLRPair_file))
-    
-    if os.path.exists(mutLRPair_file): # already exist, then use it 
-        ## temporary
-        if not use_strict:
-            if os.path.exists(uniq_mutLRPair_file):
-                print (f"ML Pair: {uniq_mutLRPair_file}")
-                with open(uniq_mutLRPair_file, 'rb') as f:
-                    mutLRPair_pmut_pfile = pickle.load(f)
-            else:
-                print (f"ML Pair: {mutLRPair_file}")
-                with open(mutLRPair_file, 'rb') as f:
-                    mutLRPair_pmut_pfile = pickle.load(f)
-                mutLRPair_pmut_pfile = excludeRedundantMutants(mutLRPair_pmut_pfile)
-                with open(uniq_mutLRPair_file, 'wb') as f:
-                    pickle.dump(mutLRPair_pmut_pfile, f)
-        else:
-            print (f"ML Pair: {strict_mutLRPair_file}")
-            with open(strict_mutLRPair_file, 'rb') as f:
-                mutLRPair_pmut_pfile = pickle.load(f)
+    uniq_mutLRPair_file = os.path.join(intermediate_dst, "uniq_mutLRPair_pfile.pkl")
+    if os.path.exists(uniq_mutLRPair_file): # already exist, then use it 
+        with open(uniq_mutLRPair_file, 'rb') as f:
+            mutLRPair_pmut_pfile = pickle.load(f)
     else:
+        # run mutation testing
         java_utils.changeJavaVer(8)
         if 'lang' == project.lower(): 
-            mvn_utils.preprocess_lang(work_dir) # move TypeUtilTests (for lang) 
-            for target_fpath in target_fpaths:
-                target_basename = os.path.basename(target_fpath)
-                if target_basename == 'TypeUtils.java':
-                    print (f"Can't process this one: {bid}")
-                    return False
+            ret = preprocess_lang(work_dir)
+            if not ret: return False
         # compile repository 
         if ant_or_mvn == 'ant_d4j':
             is_compiled, _compile_cmd = ant_d4jbased_utils.compile(d4j_home, project, work_dir)
@@ -180,13 +164,10 @@ def run_w_pit(
             assert _ant_or_mvn == ant_or_mvn, f'{_ant_or_mvn} vs {ant_or_mvn} while compiling tests'
 
         targetFiles = list(targeted.keys())
-        if project == 'Lang':
-            targetTests = "*Test"
-        else:
-            targetTests = java_utils.getTestClassPats_d4j(d4j_home, project, bid)
+        targetTests = java_utils.getTestClassPats_d4j(d4j_home, project, bid)
         targetClasses = java_utils.getTargetClasses_d4j(d4j_home, project, bid, targetFiles)
         #
-        if ant_or_mvn == 'ant_d4j':
+        if ant_or_mvn == 'ant_d4j': # Math, Closure
             _classPath = ant_d4jbased_utils.export_compileClassPath_d4jbased(d4j_home, project, work_dir)
             _classPath_ts = set(_classPath.split(","))
             testClassPath = ant_d4jbased_utils.export_compileTestClassPath_d4jbased(d4j_home, project, work_dir)
@@ -198,7 +179,6 @@ def run_w_pit(
             if ant_d4jbased_utils.check_set_SourceDirs_d4jbased(d4j_home, project, work_dir):
                 sourceDirs = ant_d4jbased_utils.export_SourceDirs_d4jbased(d4j_home, project, work_dir)
             else:
-                # temporary 
                 if project == 'Closure':
                     sourceDirs = "src" 
                 else:
@@ -218,7 +198,6 @@ def run_w_pit(
             }
         else: # mvn 
             kwargs = {}
-        #
         kwargs['further'] = True
         # run mutation 
         mutLRPair_pmut_pfile = pitMutationTool.PitMutantProcessor.runMutation(
@@ -227,25 +206,20 @@ def run_w_pit(
             targetClasses, 
             targetTests, 
             is_mvn = "mvn" == ant_or_mvn, 
-            mutators_config ='all', 
+            mutators_config ='defaults', 
             **kwargs, 
         )
         mutation_file = pitMutationTool.PitMutantProcessor.getMutationResultFile(work_dir, is_mvn = "mvn" == ant_or_mvn)
-        if os.path.exists(mutation_file):
+        if os.path.exists(mutation_file): # sucessfully run 
             to_save_file = os.path.join(intermediate_dst, os.path.basename(mutation_file))
             shutil.move(mutation_file, to_save_file)
             print (f"Move {mutation_file} to {to_save_file} for {project} {bid}")
-        
-        with open(mutLRPair_file, 'wb') as f:
-            pickle.dump(mutLRPair_pmut_pfile, f)
-
         mutLRPair_pmut_pfile = excludeRedundantMutants(mutLRPair_pmut_pfile)
-        ###### #############################
         with open(uniq_mutLRPair_file, 'wb') as f:
             pickle.dump(mutLRPair_pmut_pfile, f)  
 
-
-    if with_refactor:
+    # refco
+    if with_propagate:
         # if no mut, no need to track and process the file 
         mutLRPair_pmut_pfile = {
             targetFile:info for targetFile, info in mutLRPair_pmut_pfile.items() if len(info) > 0}
@@ -270,41 +244,32 @@ def run_w_pit(
         # delete mutants directory here
         if os.path.exists(os.path.join(work_dir, "mutants")):
             shutil.rmtree(os.path.join(work_dir, "mutants")) # b/c for refactoring not needed 
-        
-        print (f"Refactoring ... : {len(targetCommits)} commits")
-        print (mutLRPair_pmut_pfile.keys())
-        #if project in ['Math', 'Closure', 'Mockito', 'Collections']:
-        if project in ['Math', 'Closure', 'Mockito']:#, 'Collections']:
+
+        print (f"Propagating ... : {len(targetCommits)} commits")
+        if project in ['Math', 'Closure']:
             ant_or_mvn = 'ant_d4j'
-            kwargs = {
-                'd4j_home':d4j_home, 
-                'project':project
-            }
+            kwargs = {'d4j_home':d4j_home, 'project':project}
         else:
             ant_or_mvn = 'mvn'
             kwargs = {}
 
-        revealedMuts, survivedMuts, mutDeadAts, refactoringOccurred = refactor.RMinerProcesser.run(
+        revealedMuts, survivedMuts, mutDeadAts, refactoringOccurred = propagator.MutantPropagator.run(
             cp_work_dir, 
             mutLRPair_pmut_pfile,
             commonGID, 
             targetCommits, 
             os.path.abspath(intermediate_dst),
-            use_sdk = False,
             _testClassPatterns = testClassPatterns,
             ant_or_mvn = ant_or_mvn,
-            which_mutant = 'pit', 
             **kwargs
         )
         print (f"Delete temp directory ...: {cp_work_dir}")
         try:
-            #import shutil
             if os.path.exists(cp_work_dir):
                 shutil.rmtree(cp_work_dir)
         except OSError as e:
             print("Error: %s - %s." % (e.filename, e.strerror))
         try:
-            #import shutil
             if os.path.exists(os.path.abspath(work_dir)):
                 shutil.rmtree(os.path.abspath(work_dir))
         except OSError as e:
@@ -347,7 +312,6 @@ def prepare_workdir(
     bid:int, fixedRev:str, basedir:str) -> str:
     import subprocess 
     from subprocess import CalledProcessError
-    #workdir = os.path.join(basedir, f"{project}{bid}")
     workdir = getWorkDir(basedir, project, bid)
     if os.path.exists(workdir):
         print (f"{workdir} already exists")
@@ -365,117 +329,26 @@ def prepare_workdir(
         if workdir[-1] == "/": workdir = workdir[:-1]
         return os.path.abspath(workdir)
 
-
-def run_all(
-    d4j_home:str, project:str, targetdir:str, 
-    root_work_dir:str, 
-    #mml_fpath:str = "mutants/mml/likely_default.mml.bin",
-    mutSelMth:str = "all",
-    dest:str = "outputs", 
-    with_refactor:bool = True, 
-    indices:List[int] = None ,
-    ant_or_mvn:str = 'mvn', 
-    mod:int = None, 
-    kIdx:int = None, 
-):
-    os.makedirs(root_work_dir, exist_ok=True)
-    #if project == 'Gson':
-    target_info_file = os.path.join(targetdir, f"{project}_all_targets.json")
-    with open(target_info_file) as f:
-        import json
-        targeted = json.load(f)
-        targeted = dict(sorted(targeted.items(), key = lambda v:int(v[0].split("-")[0])))
-
-    targetedLnoInfosPbug = getTargetedLnos(targetdir, project, k = 'incl.refactor.incl.mutAt.wo_semcheck')# "flex")
-    failed = []
-    exclude_bids = []
-    to_uses = None
-    ## temporary to handle those interesting first 
-
-    for bid, (_, df) in targetedLnoInfosPbug.items():
-        if len(df) == 0:
-            exclude_bids.append(bid)
-    print ('exclude', exclude_bids)
-    for i, (bid_fixedRev, target_files) in enumerate(list(targeted.items())):
-        bid, fixedRev = bid_fixedRev.split("-")
-        bid = int(bid)
-        if toFocus is not None and bid not in toFocus:
-            print (f"For {project}, {bid} is not in focus")
-            continue
-        
-        if to_uses is not None and bid not in to_uses:
-            print (f"For {project}, {bid} can't be the target")
-            continue
-
-        if (indices is not None) and (bid not in indices): continue
-        if bid in exclude_bids: print (f"Nothing to look at {bid}"); continue
-        if mod is not None:
-            assert kIdx is not None, kIdx
-            if bid % mod != kIdx:
-                continue 
-        ##
-        _, targetedLnoInfos = targetedLnoInfosPbug[bid]
-        validTargetFiles = targetedLnoInfos.fpath.unique()
-        print (f"Out of {len(target_files)}, {len(validTargetFiles)} are valid targets for {bid}")
-        if len(targetedLnoInfos) == 0: 
-            print (f"\tThere are no valid lines, i.e., changed lines, in {bid}")
-            #continue
-        from subprocess import CalledProcessError
-        try:
-            is_success, bid = prepare_and_run(
-                bid_fixedRev,
-                #target_files, 
-                targetedLnoInfos[['fpath', 'lno']], 
-                d4j_home, project,
-                root_work_dir,
-                #mml_fpath = mml_fpath, 
-                mutSelMth = mutSelMth, 
-                dest = dest, 
-                with_refactor = with_refactor, 
-                ant_or_mvn = ant_or_mvn
-            )
-        except (Exception, CalledProcessError) as e:
-            print (f"Error while processing {bid} {fixedRev}")
-            print (e)
-            logging.error(traceback.format_exc())
-            work_dir = getWorkDir(root_work_dir, project, bid)
-            if os.path.exists(work_dir):
-                shutil.rmtree(work_dir)
-            if os.path.exists(work_dir + "temp2"):
-                shutil.rmtree(work_dir + "temp2")
-            failed.append(bid)
-            continue
-        #if not is_success: # will cover both the failure in prepare_workdir and run
-    n_targeted = len(targeted) if indices is None else len(indices)
-    print (f"Out of {n_targeted}, {len(failed)} failed")
-    print ("Done!")
-    return failed
-
 def prepare_and_run(
-    bid_fixedRev:str,
+    bid:int, 
     targeted:pd.DataFrame, 
     d4j_home:str, project:str,
     root_work_dir:str,
     dest:str = "outputs",
-    with_refactor:bool = True,
+    with_propagate:bool = True,
     ant_or_mvn:str = 'mvn'
 ) -> Tuple[bool, int]:
-    bid, fixedRev = bid_fixedRev.split("-")
     print (f'Processing')
+    bidToRev, _ = analysis_utils.getBidRevDict(d4j_home, project)
+    fixedRev = bidToRev[bid]
     ## prepare the play grund
     work_dir = prepare_workdir(d4j_home, project, bid, fixedRev, root_work_dir)
     if work_dir is None:
-        print (f"Failed to process ")
+        print (f"Failed to checkout {project} {bid}")
         return (False, bid)
     print (f"Processing {bid}")
     ## formulated targeted to Dict
-    targetedDict = {}
-    for fpath, lno in targeted[['fpath', 'lno']].values:
-        try:
-            targetedDict[fpath].append(lno)
-        except KeyError:
-            targetedDict[fpath] = [lno]
-    
+    targetedDict = targeted.groupby('fpath')['lno'].apply(list).to_dict()
     success = run_w_pit(
         work_dir, 
         project, 
@@ -484,16 +357,56 @@ def prepare_and_run(
         pit_jar_path = os.path.abspath(
             "mutants/pit/pitest-command-line-1.7.4-SNAPSHOT-jar-with-dependencies.jar"),
         dest = dest, 
-        with_refactor = with_refactor, 
+        with_propagate = with_propagate, 
         d4j_home = d4j_home, 
         bid = bid, 
         ant_or_mvn = ant_or_mvn, 
     )
-
     if success:
         return (True, bid)
     else:
         return (False, bid)
+
+def run(
+    d4j_home:str, project:str, bid:int, targetdir:str, 
+    root_work_dir:str, 
+    dest:str = "outputs", 
+    with_propagate:bool = True, 
+    ant_or_mvn:str = 'mvn', 
+):  
+    os.makedirs(root_work_dir, exist_ok=True)
+    target_info_file = os.path.join(targetdir, f"{project}_all_targets.json")
+    with open(target_info_file) as f:
+        import json
+        targeted = json.load(f)
+    targeted = dict(sorted(targeted.items(), key = lambda v:int(v[0].split("-")[0])))
+    targetedLnoInfosPbug = getTargetedLnos(targetdir, project, k = 'incl.refactor.incl.mutAt.wo_semcheck')
+    _, targetedLnoInfos = targetedLnoInfosPbug[bid]
+    bidToRev, _ = analysis_utils.getBidRevDict(d4j_home, project)
+    fixedRev = bidToRev[bid]
+    from subprocess import CalledProcessError
+    try:
+        _, bid = prepare_and_run(
+            bid,
+            targetedLnoInfos[['fpath', 'lno']], 
+            d4j_home, project,
+            root_work_dir,
+            dest = dest, 
+            with_propagate = with_propagate, 
+            ant_or_mvn = ant_or_mvn
+        )
+        return True
+    except (Exception, CalledProcessError) as e:
+        print (f"Error while processing {bid} {fixedRev}")
+        print (e)
+        logging.error(traceback.format_exc())
+        work_dir = getWorkDir(root_work_dir, project, bid)
+        if os.path.exists(work_dir):
+            shutil.rmtree(work_dir)
+        if os.path.exists(work_dir + "temp2"):
+            shutil.rmtree(work_dir + "temp2")
+        return False
+
 
 
 if __name__ == "__main__":
@@ -502,32 +415,25 @@ if __name__ == "__main__":
     parser.add_argument("-dst", "--dest", type = str, 
         help = "a directory to save colleted bug-inducing commits")
     parser.add_argument("-p", "--project", type = str, help = "a targeted project name")
-    #parser.add_argument("-data", "--datadir", type = str)
     parser.add_argument("-repo", "--repo_path", type = str, help = "this is infact a repo directory")
     parser.add_argument("-target", "--targetdir", type = str, default="data/targets")
-    parser.add_argument("-sdk", "--use_sdk", action="store_true")
     parser.add_argument("-w", "--workdir", type = str, default = "workdir")
     parser.add_argument("-b", "--bid", type =int)
-    parser.add_argument("-refactor", "--with_refactor", action = "store_true")
-    parser.add_argument("-m", "--mod", type = int, default = None)
-    parser.add_argument("-i", "--kIdx", type = int, default = None)
+    parser.add_argument("-propagate", "--with_propagate", action = "store_true")
     args = parser.parse_args()
 
     dest = args.dest 
     dest = os.path.join(dest, args.project)
     os.makedirs(dest, exist_ok=True)
     indices = [args.bid]
-    run_all(
+    run(
         os.getenv('D4J_HOME'),
         args.project,
+        args.bid,
         args.targetdir,
         args.workdir,
-        mutSelMth = "all",
         dest = dest, 
-        with_refactor = args.with_refactor,#True,
-        indices = indices,
-        ant_or_mvn = 'ant_d4j' if args.project in ['Math', 'Closure', 'Mockito'] else 'mvn',
-        mod = args.mod, 
-        kIdx = args.kIdx
+        with_propagate = args.with_propagate,
+        ant_or_mvn = 'ant_d4j' if args.project in ['Math', 'Closure'] else 'mvn',
     )
 

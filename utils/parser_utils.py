@@ -1,5 +1,4 @@
 import javalang
-import os, sys 
 from typing import List, Dict, Tuple 
 
 def build_lno_pos_dict(fpath_or_file_content:str, is_path:bool) -> Dict[int, Tuple[int,int]]:
@@ -68,22 +67,8 @@ def get_lno_positions_of_chgd_nodes_v1(target_lno:int, build_pos_dict:Dict, lno_
 def get_lno_positions_of_chgd_nodes(
     target_lno:int, build_pos_dict:Dict, lno_to_node_dict:Dict
 ) -> List[int]:
-    # will take the smallest 
-    #print ("target lno", target_lno)
     if target_lno in lno_to_node_dict.keys():
-        #print ('here')
         chgd_nodes = lno_to_node_dict[target_lno]
-        #for chgd_node in chgd_nodes:
-        #    print (type(chgd_node), chgd_node.position)
-        #min_end_lno = None
-        #for chgd_node in chgd_nodes:
-            #min_lno, end_lno = build_pos_dict[chgd_node]
-            #if min_end_lno is None:
-                #min_end_lno = end_lno 
-            #elif min_end_lno > end_lno:
-                #min_end_lno = end_lno  
-        # ... here, there are some cases where .. the element/statement is accross mutliple line 
-        # since the cobertura .. wil process at the statmenet level ...
         min_dist_to_target_lno = None
         closest_chgd_node = None
         for chgd_node in chgd_nodes:
@@ -104,13 +89,6 @@ def get_lno_positions_of_chgd_nodes(
         #min_end_lno = None
         for lno, chgd_nodes in lno_to_node_dict.items():
             if lno < target_lno: # the element start after the targeted line
-                #for chgd_node in chgd_nodes:
-                    #_, end_lno = build_pos_dict[chgd_node]
-                    #if end_lno < target_lno: continue #
-                    #if min_end_lno is None:
-                        #min_end_lno = end_lno 
-                    #elif min_end_lno > end_lno:
-                        #min_end_lno = end_lno
                 for chgd_node in chgd_nodes:
                     min_lno, end_lno = build_pos_dict[chgd_node]
                     if end_lno < target_lno: continue # not our target
@@ -121,17 +99,10 @@ def get_lno_positions_of_chgd_nodes(
                     elif min_dist_to_target_lno > dist_to_target_lno:
                         min_dist_to_target_lno = dist_to_target_lno
                         closest_chgd_node = chgd_node 
-                #start_lno_of_chgd, end_lno_of_chgd = build_pos_dict[closest_chgd_node]
-                #rets = list(range(start_lno_of_chgd, end_lno_of_chgd + 1))
-        #if min_end_lno is not None:
-        #    rets = list(range(target_lno, min_end_lno + 1))
         if closest_chgd_node is not None:
             start_lno_of_chgd, end_lno_of_chgd = build_pos_dict[closest_chgd_node]
             rets = list(range(start_lno_of_chgd, end_lno_of_chgd + 1))
         else:
-            # currently min_end_lno can be None, for cases like return statement including block statement 
-            # -> so, the end part failed to be catpured
-            # for these cases, let's use the closet before one 
             import numpy as np 
             processed_lines = np.array(sorted(list(lno_to_node_dict.keys()))) # in ascending order 
             idx_to_closed_bfr_chgd_node = np.where(processed_lines <= target_lno)[0].max() # 
@@ -141,9 +112,5 @@ def get_lno_positions_of_chgd_nodes(
             for c in cand_bfr_chgd_nodes:
                 cand_start_lnos.append(c.position.line)
             start_lno = min(cand_start_lnos)
-            #start_lno, _ = build_pos_dict[cand_bfr_chgd_nodes]
             rets = list(range(start_lno, target_lno + 1))
-    #print (rets)
-    #sys.exit()
     return rets 
-    #return list(range(target_lno, min_end_lno + 1))
