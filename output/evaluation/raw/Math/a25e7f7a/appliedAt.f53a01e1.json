@@ -1,0 +1,1 @@
+{"2": {"src/main/java/org/apache/commons/math3/stat/inference/MannWhitneyUTest.java": [["*", [5668, 5669]]]}, "3": {"src/main/java/org/apache/commons/math3/stat/inference/MannWhitneyUTest.java": [["ensureDataConformance(x, y)", [4911, 4938]]]}, "14": {"src/main/java/org/apache/commons/math3/stat/inference/MannWhitneyUTest.java": [["ensureDataConformance(x, y)", [8675, 8702]]]}}

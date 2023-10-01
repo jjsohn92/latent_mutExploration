@@ -1,0 +1,1 @@
+{"590": {"allftests": ["org.apache.commons.lang3.RandomStringUtilsTest#testRandomStringUtilsHomog"], "ftests": ["org.apache.commons.lang3.RandomStringUtilsTest#testRandomStringUtilsHomog"], "alletests": [], "etests": [], "mutLoc": [136909, 136910], "oplt": "*", "mutant": "*", "mutOp": ["MATH", "Replaced integer multiplication with division"]}}

@@ -1,0 +1,1 @@
+{"39": {"allftests": ["org.apache.commons.codec.binary.Base64Test#testBase64"], "ftests": ["org.apache.commons.codec.binary.Base64Test#testBase64"], "alletests": [], "etests": [], "mutLoc": [22009, 22010], "oplt": "<", "mutant": "<", "mutOp": ["ROR1", "Less than to less or equal"]}}

@@ -1,0 +1,1 @@
+{"0": {"src/main/java/org/apache/commons/csv/CSVParser.java": [["format.validate()", [8933, 8950]]]}, "8": {"src/main/java/org/apache/commons/csv/CSVParser.java": [["Assertions.notNull(format, \"format\")", [6348, 6384]]]}, "9": {"src/main/java/org/apache/commons/csv/CSVParser.java": [["Assertions.notNull(format, \"format\")", [7415, 7451]]]}}

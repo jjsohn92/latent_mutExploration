@@ -1,0 +1,1 @@
+{"1": {"allftests": ["org.apache.commons.compress.archivers.tar.TarArchiveEntryTest#testTarFileWithFSRoot"], "ftests": ["org.apache.commons.compress.archivers.tar.TarArchiveEntryTest#testTarFileWithFSRoot"], "alletests": [], "etests": [], "mutLoc": [21607, 21608], "oplt": "&", "mutant": "&", "mutOp": ["MATH", "Replaced bitwise AND with OR"]}}

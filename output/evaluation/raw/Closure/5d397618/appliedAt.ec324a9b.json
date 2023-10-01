@@ -1,0 +1,1 @@
+{"38": {"src/com/google/javascript/jscomp/VarCheck.java": [["createSynthesizedExternVar(varName)", [5533, 5568]]]}, "0": {"src/com/google/javascript/jscomp/Normalize.java": [["NodeTraversal.traverse(\n        compiler, js,\n        new MakeDeclaredNamesUnique())", [3864, 3948]]]}}

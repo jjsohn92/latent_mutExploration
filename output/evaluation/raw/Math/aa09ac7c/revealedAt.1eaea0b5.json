@@ -1,0 +1,1 @@
+{"66": {"allftests": ["org.apache.commons.math.distribution.GammaDistributionTest#testSampling"], "ftests": ["org.apache.commons.math.distribution.GammaDistributionTest#testSampling"], "alletests": [], "etests": [], "mutLoc": [5757, 5758], "oplt": "<", "mutant": "<", "mutOp": ["CONDITIONALS_BOUNDARY", "changed conditional boundary"]}}

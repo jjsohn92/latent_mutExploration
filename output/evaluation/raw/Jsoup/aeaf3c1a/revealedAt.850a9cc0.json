@@ -1,0 +1,1 @@
+{"102": {"allftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "ftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "alletests": [], "etests": [], "mutLoc": [16346, 16347], "oplt": "<", "mutant": "<", "mutOp": ["CONDITIONALS_BOUNDARY", "changed conditional boundary"]}}

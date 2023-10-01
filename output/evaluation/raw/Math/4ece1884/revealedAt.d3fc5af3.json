@@ -1,0 +1,1 @@
+{"0": {"allftests": "timeout", "ftests": [], "alletests": [], "etests": [], "mutLoc": [7191, 7219], "oplt": "incrementIterationsCounter()", "mutant": "incrementIterationsCounter()", "mutOp": ["VOID_METHOD_CALLS", "removed call to org/apache/commons/math/optimization/linear/SimplexSolver::incrementIterationsCounter"]}}

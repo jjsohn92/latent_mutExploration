@@ -1,0 +1,1 @@
+{"1": {"allftests": ["org.jsoup.helper.W3CDomTest#convertsGoogleLocation"], "ftests": ["org.jsoup.helper.W3CDomTest#convertsGoogleLocation"], "alletests": [], "etests": [], "mutLoc": [2061, 2094], "oplt": "out.setDocumentURI(in.location())", "mutant": "out.setDocumentURI(in.location())", "mutOp": ["VOID_METHOD_CALLS", "removed call to org/w3c/dom/Document::setDocumentURI"]}}

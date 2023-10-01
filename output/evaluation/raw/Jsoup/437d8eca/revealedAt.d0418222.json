@@ -1,0 +1,1 @@
+{"55": {"allftests": ["org.jsoup.nodes.DocumentTest#testOutputEncoding"], "ftests": ["org.jsoup.nodes.DocumentTest#testOutputEncoding"], "alletests": [], "etests": [], "mutLoc": [3587, 3591], "oplt": "null", "mutant": "null", "mutOp": ["EMPTY_RETURNS", "replaced Character return value with 0 for org/jsoup/parser/Tokeniser::consumeCharacterReference"]}}

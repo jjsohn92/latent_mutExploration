@@ -1,0 +1,1 @@
+{"195": {"allftests": ["org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizerTest#testMaximize"], "ftests": ["org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizerTest#testMaximize"], "alletests": [], "etests": [], "mutLoc": [26368, 26369], "oplt": "-", "mutant": "-", "mutOp": ["INVERT_NEGS", "removed negation"]}}

@@ -1,0 +1,1 @@
+{"196": {"allftests": ["org.jsoup.parser.HtmlParserTest#handlesDeepStack"], "ftests": ["org.jsoup.parser.HtmlParserTest#handlesDeepStack"], "alletests": [], "etests": [], "mutLoc": [22895, 22896], "oplt": "-", "mutant": "-", "mutOp": ["MATH", "Replaced integer subtraction with addition"]}}

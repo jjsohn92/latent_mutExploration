@@ -1,0 +1,1 @@
+{"1": {"src/main/java/org/jsoup/helper/W3CDom.java": [["out.setDocumentURI(in.location())", [2037, 2070]]]}, "8": {"src/main/java/org/jsoup/helper/W3CDom.java": [["Validate.notNull(in)", [1188, 1208]]]}, "9": {"src/main/java/org/jsoup/helper/W3CDom.java": [["factory.setNamespaceAware(true)", [1315, 1346]]]}}

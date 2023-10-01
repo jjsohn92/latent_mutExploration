@@ -1,0 +1,1 @@
+{"0": {"src/main/java/org/jsoup/parser/TokeniserState.java": [["t.transition(fallback)", [59720, 59742]]]}, "1": {"src/main/java/org/jsoup/parser/TokeniserState.java": [["r.unconsume()", [59831, 59844]]]}}

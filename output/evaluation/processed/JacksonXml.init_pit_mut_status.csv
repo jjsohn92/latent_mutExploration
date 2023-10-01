@@ -1,0 +1,4 @@
+bid,k,all,killed,timed_out,no_covg,non_viable,memory_error,run_error,survived,MathMutator,ConditionalsBoundaryMutator,IncrementsMutator,InvertNegsMutator,NegateConditionalsMutator,VoidMethodCallMutator,PrimitiveReturnsMutator,EmptyObjectReturnValsMutator,BooleanFalseReturnValsMutator,BooleanTrueReturnValsMutator,NullReturnValsMutator
+3,3-79a4b57f,155,84,1,54,0,1,0,15,8,3,1,0,58,26,2,21,4,5,27
+4,4-2c5f6f4e,57,34,0,19,0,0,0,4,0,1,0,0,30,22,0,0,0,0,4
+2,2-37eb331a,86,47,19,14,0,0,0,6,1,5,1,0,38,2,23,8,1,2,5

@@ -1,0 +1,1 @@
+{"33": {"src/main/java/org/apache/commons/math/linear/ArrayRealVector.java": [["this.isNaN()", [29561, 29573]]]}, "47": {"src/main/java/org/apache/commons/math/linear/ArrayRealVector.java": [["MathUtils.hash(data)", [30023, 30043]]]}}

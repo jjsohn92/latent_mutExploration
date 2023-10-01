@@ -1,0 +1,1 @@
+{"39": {"src/com/google/javascript/rhino/jstype/JSType.java": [["registry.setResolveMode(oldResolveMode)", [43687, 43726]]]}, "111": {"src/com/google/javascript/rhino/jstype/JSType.java": [["resolveResult.setResolvedTypeInternal(resolveResult)", [44792, 44844]]]}}

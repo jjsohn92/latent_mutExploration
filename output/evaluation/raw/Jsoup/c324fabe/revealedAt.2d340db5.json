@@ -1,0 +1,1 @@
+{"183": {"allftests": ["org.jsoup.parser.HtmlParserTest#handlesDeepStack"], "ftests": ["org.jsoup.parser.HtmlParserTest#handlesDeepStack"], "alletests": [], "etests": [], "mutLoc": [18221, 18225], "oplt": "this", "mutant": "this", "mutOp": ["NULL_RETURNS", "replaced return value with null for org/jsoup/nodes/Element::prependText"]}}

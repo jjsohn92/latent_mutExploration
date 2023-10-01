@@ -1,0 +1,1 @@
+{"33": {"allftests": ["org.jsoup.nodes.AttributeTest#settersOnOrphanAttribute"], "ftests": ["org.jsoup.nodes.AttributeTest#settersOnOrphanAttribute"], "alletests": [], "etests": [], "mutLoc": [3149, 3155], "oplt": "oldVal", "mutant": "oldVal", "mutOp": ["EMPTY_RETURNS", "replaced return value with \"\" for org/jsoup/nodes/Attribute::setValue"]}}

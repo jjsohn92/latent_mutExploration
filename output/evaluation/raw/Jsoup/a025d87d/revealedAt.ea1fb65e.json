@@ -1,0 +1,1 @@
+{"36": {"allftests": ["org.jsoup.nodes.ElementTest#testNormalizesNbspInText"], "ftests": ["org.jsoup.nodes.ElementTest#testNormalizesNbspInText"], "alletests": [], "etests": [], "mutLoc": [7280, 7282], "oplt": "!=", "mutant": "!=", "mutOp": ["NEGATE_CONDITIONALS", "negated conditional"]}}

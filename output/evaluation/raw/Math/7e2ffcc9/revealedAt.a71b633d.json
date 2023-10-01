@@ -1,0 +1,1 @@
+{"482": {"allftests": "timeout", "ftests": [], "alletests": [], "etests": [], "mutLoc": [43482, 43483], "oplt": "-", "mutant": "-", "mutOp": ["MATH", "Replaced integer subtraction with addition"]}}

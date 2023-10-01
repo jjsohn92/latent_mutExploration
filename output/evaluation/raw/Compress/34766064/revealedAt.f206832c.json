@@ -1,0 +1,1 @@
+{"77": {"allftests": ["org.apache.commons.compress.archivers.zip.ZipFileTest#testWinzipBackSlashWorkaround"], "ftests": ["org.apache.commons.compress.archivers.zip.ZipFileTest#testWinzipBackSlashWorkaround"], "alletests": [], "etests": [], "mutLoc": [15626, 15627], "oplt": "&", "mutant": "&", "mutOp": ["MATH", "Replaced bitwise AND with OR"]}}

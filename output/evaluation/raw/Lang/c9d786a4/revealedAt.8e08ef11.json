@@ -1,0 +1,1 @@
+{"17": {"allftests": ["org.apache.commons.lang3.RandomStringUtilsTest#testLang100"], "ftests": ["org.apache.commons.lang3.RandomStringUtilsTest#testLang100"], "alletests": [], "etests": [], "mutLoc": [11263, 11265], "oplt": "++", "mutant": "++", "mutOp": ["INCREMENTS", "Changed increment from 1 to -1"]}}

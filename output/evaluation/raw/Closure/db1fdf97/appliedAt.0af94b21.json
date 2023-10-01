@@ -1,0 +1,1 @@
+{"213": {"src/com/google/javascript/jscomp/CheckAccessControls.java": [["parent.getType() != Token.NEW", [18722, 18751]]]}, "225": {"src/com/google/javascript/jscomp/CheckAccessControls.java": [["type", [7608, 7612]]]}}

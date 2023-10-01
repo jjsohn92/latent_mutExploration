@@ -1,0 +1,1 @@
+{"59": {"allftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "ftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "alletests": [], "etests": [], "mutLoc": [8261, 8263], "oplt": "el", "mutant": "el", "mutOp": ["NULL_RETURNS", "replaced return value with null for org/jsoup/parser/HtmlTreeBuilder::insert"]}}

@@ -1,0 +1,1 @@
+{"19": {"src/com/google/javascript/jscomp/CrossModuleMethodMotion.java": [[">", [3136, 3137]]]}, "0": {"src/com/google/javascript/jscomp/AnalyzePrototypeProperties.java": [["symbolGraph.connect(externNode, module, nameInfo)", [6484, 6533]]]}, "1": {"src/com/google/javascript/jscomp/AnalyzePrototypeProperties.java": [["==", [7575, 7577]]]}}

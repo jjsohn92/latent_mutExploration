@@ -1,0 +1,1 @@
+{"62": {"allftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "ftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "alletests": [], "etests": [], "mutLoc": [5632, 5663], "oplt": "Validate.isFalse(index >= size)", "mutant": "Validate.isFalse(index >= size)", "mutOp": ["VOID_METHOD_CALLS", "removed call to org/jsoup/helper/Validate::isFalse"]}}

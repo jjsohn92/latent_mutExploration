@@ -1,0 +1,5 @@
+bid,mutK,final_chg_state,sc_cnt,rc_cnt,nc_cnt
+25,src.main.java.org.apache.commons.collections4.IteratorUtils-15,nc,0,0,17
+28,src.main.java.org.apache.commons.collections4.trie.AbstractPatriciaTrie-17,nc,0,0,21
+28,src.main.java.org.apache.commons.collections4.trie.AbstractPatriciaTrie-19,nc,0,0,7
+28,src.main.java.org.apache.commons.collections4.trie.AbstractPatriciaTrie-29,nc,0,0,7

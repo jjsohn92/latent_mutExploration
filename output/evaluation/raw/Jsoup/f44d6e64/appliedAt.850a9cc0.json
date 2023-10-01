@@ -1,0 +1,1 @@
+{"0": {"src/main/java/org/jsoup/safety/Cleaner.java": [["Validate.notNull(whitelist)", [1426, 1453]]]}, "1": {"src/main/java/org/jsoup/safety/Cleaner.java": [["Validate.notNull(dirtyDocument)", [1897, 1928]]]}, "2": {"src/main/java/org/jsoup/parser/Parser.java": [[">", [2072, 2073]]]}, "4": {}, "13": {"src/main/java/org/jsoup/parser/Parser.java": [[">", [6481, 6482]]]}}

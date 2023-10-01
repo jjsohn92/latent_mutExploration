@@ -1,0 +1,1 @@
+{"191": {"src/main/java/org/jsoup/parser/Tokeniser.java": [["Validate.isFalse(isEmitPending, \"There is an unread token pending!\")", [1942, 2010]]]}, "1": {}, "2": {"src/main/java/org/jsoup/parser/Parser.java": [[">", [1695, 1696]]]}, "4": {"src/main/java/org/jsoup/parser/Parser.java": [["maxErrors > 0", [1685, 1698]]]}}

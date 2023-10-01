@@ -1,0 +1,1 @@
+{"103": {"allftests": ["org.apache.commons.cli.bug.BugCLI162Test#testLongLineChunking"], "ftests": ["org.apache.commons.cli.bug.BugCLI162Test#testLongLineChunking"], "alletests": [], "etests": [], "mutLoc": [19165, 19166], "oplt": "+", "mutant": "+", "mutOp": ["MATH", "Replaced integer addition with subtraction"]}}

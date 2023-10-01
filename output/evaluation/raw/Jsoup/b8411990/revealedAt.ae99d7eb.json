@@ -1,0 +1,1 @@
+{"152": {"allftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "ftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "alletests": [], "etests": [], "mutLoc": [11446, 11448], "oplt": ">=", "mutant": ">=", "mutOp": ["NEGATE_CONDITIONALS", "negated conditional"]}}

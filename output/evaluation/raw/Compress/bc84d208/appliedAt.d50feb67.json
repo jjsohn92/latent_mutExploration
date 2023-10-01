@@ -1,0 +1,1 @@
+{"29": {"src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStream.java": [["readGNUSparse()", [10214, 10229]]]}, "58": {"src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStream.java": [["<", [23217, 23218]]]}, "153": {"src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveInputStream.java": [["==", [16199, 16201]]]}}

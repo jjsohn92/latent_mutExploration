@@ -1,0 +1,1 @@
+{"80": {"allftests": ["org.apache.commons.math.util.MathUtilsTest#testSignDouble"], "ftests": ["org.apache.commons.math.util.MathUtilsTest#testSignDouble"], "alletests": [], "etests": [], "mutLoc": [36775, 36776], "oplt": ">", "mutant": ">", "mutOp": ["NEGATE_CONDITIONALS", "negated conditional"]}}

@@ -1,0 +1,1 @@
+{"0": {"src/com/google/javascript/jscomp/TypedScopeCreator.java": [["==", [10155, 10157]]]}, "1": {"src/com/google/javascript/jscomp/TypedScopeCreator.java": [["codingConvention.defineDelegateProxyPrototypeProperties(\n          typeRegistry, newScope, delegateProxyPrototypes,\n          delegateCallingConventions)", [10172, 10325]]]}}

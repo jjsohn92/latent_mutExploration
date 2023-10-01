@@ -1,0 +1,1 @@
+{"1": {"src/main/java/org/jsoup/nodes/Comment.java": [[">", [1597, 1598]]]}, "4": {"src/main/java/org/jsoup/nodes/Comment.java": [["(data.length() > 1 && (data.startsWith(\"!\") || data.startsWith(\"?\")))", [1582, 1651]]]}}

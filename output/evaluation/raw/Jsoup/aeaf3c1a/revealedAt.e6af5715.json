@@ -1,0 +1,1 @@
+{"192": {"allftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "ftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "alletests": [], "etests": [], "mutLoc": [48266, 48270], "oplt": "this", "mutant": "this", "mutOp": ["NULL_RETURNS", "replaced return value with null for org/jsoup/nodes/Element::val"]}}

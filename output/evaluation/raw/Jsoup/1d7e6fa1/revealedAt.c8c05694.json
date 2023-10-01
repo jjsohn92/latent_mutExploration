@@ -1,0 +1,1 @@
+{"46": {"allftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "ftests": ["org.jsoup.integration.ConnectTest#multiCookieSet"], "alletests": [], "etests": [], "mutLoc": [5456, 5469], "oplt": "allElements()", "mutant": "allElements()", "mutOp": ["VOID_METHOD_CALLS", "removed call to org/jsoup/select/QueryParser::allElements"]}}

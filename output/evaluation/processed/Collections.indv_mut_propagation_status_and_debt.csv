@@ -1,0 +1,5 @@
+bid,mutK,status,mutOp,lno,debt_time,debt_nc
+25,src.main.java.org.apache.commons.collections4.IteratorUtils-15,non-latent,VOID_METHOD_CALLS,1384,1389.752175925926,321.0
+28,src.main.java.org.apache.commons.collections4.trie.AbstractPatriciaTrie-17,non-latent,CONDITIONALS_BOUNDARY,198,962.8800462962964,210.0
+28,src.main.java.org.apache.commons.collections4.trie.AbstractPatriciaTrie-29,non-latent,NULL_RETURNS,226,962.8800462962964,210.0
+28,src.main.java.org.apache.commons.collections4.trie.AbstractPatriciaTrie-19,non-latent,CONDITIONALS_BOUNDARY,211,962.8800462962964,210.0

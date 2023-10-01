@@ -1,0 +1,1 @@
+{"0": {"allftests": ["org.jsoup.parser.HtmlParserTest#handlesDeepStack"], "ftests": ["org.jsoup.parser.HtmlParserTest#handlesDeepStack"], "alletests": [], "etests": [], "mutLoc": [2133, 2154], "oplt": "Validate.notNull(tag)", "mutant": "Validate.notNull(tag)", "mutOp": ["VOID_METHOD_CALLS", "removed call to org/jsoup/helper/Validate::notNull"]}}

@@ -1,0 +1,1 @@
+{"16": {"src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveOutputStream.java": [["out.close()", [10403, 10414]]]}, "78": {"src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveOutputStream.java": [["+", [15827, 15828]]]}, "61": {"src/main/java/org/apache/commons/compress/archivers/tar/TarArchiveOutputStream.java": [[">=", [24665, 24667]]]}}

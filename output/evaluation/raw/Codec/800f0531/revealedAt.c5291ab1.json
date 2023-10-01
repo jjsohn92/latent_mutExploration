@@ -1,0 +1,1 @@
+{"161": {"allftests": ["org.apache.commons.codec.binary.Base64Test#testCodec112"], "ftests": ["org.apache.commons.codec.binary.Base64Test#testCodec112"], "alletests": [], "etests": [], "mutLoc": [33001, 33002], "oplt": ">", "mutant": ">", "mutOp": ["CONDITIONALS_BOUNDARY", "changed conditional boundary"]}}

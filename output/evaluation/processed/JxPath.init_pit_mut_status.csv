@@ -1,0 +1,10 @@
+bid,k,all,killed,timed_out,no_covg,non_viable,memory_error,run_error,survived,MathMutator,ConditionalsBoundaryMutator,IncrementsMutator,InvertNegsMutator,NegateConditionalsMutator,VoidMethodCallMutator,PrimitiveReturnsMutator,EmptyObjectReturnValsMutator,BooleanFalseReturnValsMutator,BooleanTrueReturnValsMutator,NullReturnValsMutator
+22,22-afa2deca,230,177,0,40,0,0,0,13,4,6,6,0,135,5,12,20,10,17,15
+15,15-497ed5f8,14,13,0,0,0,0,0,1,0,2,0,0,7,2,1,0,1,1,0
+14,14-8a04f62f,272,199,0,30,0,0,0,43,9,16,9,0,78,36,2,31,2,4,85
+21,21-99a20785,58,40,0,8,0,0,0,10,2,1,0,0,27,6,4,0,2,8,8
+16,16-6cf70928,504,351,6,107,0,0,0,40,12,18,15,0,289,10,29,42,21,32,36
+18,18-4882e442,23,10,1,10,0,0,0,2,2,2,0,0,10,2,0,0,2,4,1
+20,20-820a69d8,43,33,0,3,0,0,0,7,0,1,0,0,20,2,1,0,7,10,2
+17,17-a1bc20f2,73,58,4,6,0,0,0,5,2,9,1,0,43,0,2,0,2,9,5
+19,19-7b2847e8,488,354,7,91,0,0,0,36,8,13,13,0,283,10,29,39,23,36,34

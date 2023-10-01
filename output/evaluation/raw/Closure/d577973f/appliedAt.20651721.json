@@ -1,0 +1,1 @@
+{"62": {"src/com/google/javascript/rhino/jstype/PrototypeObjectType.java": [["checkState(!hasCachedValues())", [9755, 9785]]]}, "82": {"src/com/google/javascript/rhino/jstype/PrototypeObjectType.java": [["super.unboxesTo()", [7675, 7692]]]}}

@@ -1,0 +1,1 @@
+{"0": {"src/main/java/org/jsoup/nodes/Document.java": [["Validate.notNull(baseUri)", [1024, 1049]]]}, "13": {"src/main/java/org/jsoup/nodes/Document.java": [["this", [6310, 6314]]]}, "14": {"src/main/java/org/jsoup/nodes/Document.java": [["Validate.notNull(title)", [2281, 2304]]]}}

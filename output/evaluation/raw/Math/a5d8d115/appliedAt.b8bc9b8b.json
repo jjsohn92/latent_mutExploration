@@ -1,0 +1,1 @@
+{"14": {"src/main/java/org/apache/commons/math3/genetics/ElitisticListPopulation.java": [["Collections.sort(oldChromosomes)", [3300, 3332]]]}, "16": {"src/main/java/org/apache/commons/math3/genetics/ElitisticListPopulation.java": [["<", [4124, 4125]]]}, "17": {"src/main/java/org/apache/commons/math3/genetics/ElitisticListPopulation.java": [[">", [4143, 4144]]]}}

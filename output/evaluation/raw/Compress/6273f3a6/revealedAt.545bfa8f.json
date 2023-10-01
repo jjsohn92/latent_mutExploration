@@ -1,0 +1,1 @@
+{"56": {"allftests": ["org.apache.commons.compress.IOMethodsTest#testWriteCpio"], "ftests": ["org.apache.commons.compress.IOMethodsTest#testWriteCpio"], "alletests": [], "etests": [], "mutLoc": [5044, 5046], "oplt": "==", "mutant": "==", "mutOp": ["NEGATE_CONDITIONALS", "negated conditional"]}}

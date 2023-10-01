@@ -1,0 +1,1 @@
+{"48": {"allftests": ["org.jsoup.parser.ParserTest#normalisesDocument"], "ftests": ["org.jsoup.parser.ParserTest#normalisesDocument"], "alletests": [], "etests": [], "mutLoc": [3760, 3775], "oplt": "tq.consume(\"<\")", "mutant": "tq.consume(\"<\")", "mutOp": ["VOID_METHOD_CALLS", "removed call to org/jsoup/parser/TokenQueue::consume"]}}

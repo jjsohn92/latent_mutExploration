@@ -1,0 +1,1 @@
+{"1": {"src/main/java/org/jsoup/helper/DataUtil.java": [["!=", [7269, 7271]]]}, "4": {"src/main/java/org/jsoup/helper/DataUtil.java": [["Validate.notEmpty(charsetName, \"Must set charset arg to character set of file to parse. Set to null to attempt to detect from HTML\")", [4670, 4802]]]}}

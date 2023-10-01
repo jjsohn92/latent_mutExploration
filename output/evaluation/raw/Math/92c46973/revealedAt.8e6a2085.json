@@ -1,0 +1,1 @@
+{"182": {"allftests": ["org.apache.commons.math3.optimization.direct.CMAESOptimizerTest#testAckley"], "ftests": ["org.apache.commons.math3.optimization.direct.CMAESOptimizerTest#testAckley"], "alletests": [], "etests": [], "mutLoc": [44551, 44552], "oplt": "*", "mutant": "*", "mutOp": ["AOR1", "Replaced double multiplication with division"]}}

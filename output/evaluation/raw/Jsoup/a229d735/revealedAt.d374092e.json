@@ -1,0 +1,1 @@
+{"4": {"allftests": ["org.jsoup.select.SelectorTest#attributeWithBrackets"], "ftests": ["org.jsoup.select.SelectorTest#attributeWithBrackets"], "alletests": [], "etests": [], "mutLoc": [8445, 8447], "oplt": "!=", "mutant": "!=", "mutOp": ["NEGATE_CONDITIONALS", "negated conditional"]}}

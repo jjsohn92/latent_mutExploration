@@ -1,0 +1,1 @@
+{"13": {"allftests": ["org.apache.commons.lang3.RandomStringUtilsTest#testRandomStringUtilsHomog"], "ftests": ["org.apache.commons.lang3.RandomStringUtilsTest#testRandomStringUtilsHomog"], "alletests": [], "etests": [], "mutLoc": [225983, 225984], "oplt": "-", "mutant": "-", "mutOp": ["AOR1", "Replaced integer subtraction with addition"]}}

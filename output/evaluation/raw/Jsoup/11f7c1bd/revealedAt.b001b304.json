@@ -1,0 +1,1 @@
+{"3": {"allftests": ["org.jsoup.parser.HtmlParserTest#handlesDeepStack"], "ftests": ["org.jsoup.parser.HtmlParserTest#handlesDeepStack"], "alletests": [], "etests": [], "mutLoc": [46853, 46857], "oplt": "this", "mutant": "this", "mutOp": ["NULL_RETURNS", "replaced return value with null for org/jsoup/nodes/Element::addClass"]}}

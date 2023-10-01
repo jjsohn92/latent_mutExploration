@@ -1,0 +1,1 @@
+{"34": {"src/com/google/javascript/rhino/jstype/JSType.java": [["registry.setResolveMode(oldResolveMode)", [42270, 42309]]]}, "62": {"src/com/google/javascript/rhino/jstype/JSType.java": [["System.identityHashCode(this)", [18412, 18441]]]}, "95": {"src/com/google/javascript/rhino/jstype/JSType.java": [["resolveResult.setResolvedTypeInternal(resolveResult)", [43375, 43427]]]}}

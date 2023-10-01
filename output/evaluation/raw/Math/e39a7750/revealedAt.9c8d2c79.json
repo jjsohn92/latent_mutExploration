@@ -1,0 +1,1 @@
+{"11": {"allftests": ["org.apache.commons.math.distribution.NormalDistributionTest#testExtremeValues"], "ftests": ["org.apache.commons.math.distribution.NormalDistributionTest#testExtremeValues"], "alletests": [], "etests": [], "mutLoc": [6301, 6303], "oplt": ">=", "mutant": ">=", "mutOp": ["CONDITIONALS_BOUNDARY", "changed conditional boundary"]}}

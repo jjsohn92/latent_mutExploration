@@ -1,0 +1,1 @@
+{"16": {"allftests": ["org.apache.commons.cli.HelpFormatterTest#testOptionWithoutShortFormat2"], "ftests": ["org.apache.commons.cli.HelpFormatterTest#testOptionWithoutShortFormat2"], "alletests": [], "etests": [], "mutLoc": [26591, 26593], "oplt": "<=", "mutant": "<=", "mutOp": ["ROR1", "Less or equal to less than"]}}

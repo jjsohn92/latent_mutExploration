@@ -1,0 +1,1 @@
+{"11": {"src/main/java/org/jsoup/select/QueryParser.java": [["Validate.notEmpty(id)", [7592, 7613]]]}, "37": {"src/main/java/org/jsoup/select/QueryParser.java": [["allElements()", [5456, 5469]]]}, "65": {"src/main/java/org/jsoup/select/QueryParser.java": [["findElements()", [1604, 1618]]]}}

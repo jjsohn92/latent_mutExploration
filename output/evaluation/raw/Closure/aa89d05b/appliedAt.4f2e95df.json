@@ -1,0 +1,1 @@
+{"0": {"src/com/google/javascript/jscomp/AnalyzePrototypeProperties.java": [["symbolGraph.connect(externNode, module, nameInfo)", [5380, 5429]]]}, "1": {"src/com/google/javascript/jscomp/AnalyzePrototypeProperties.java": [["==", [6510, 6512]]]}}

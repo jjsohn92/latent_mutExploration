@@ -1,0 +1,1 @@
+{"0": {"src/java/org/apache/commons/math/linear/RealMatrixImpl.java": [["<=", [3052, 3054]]]}, "1": {"src/java/org/apache/commons/math/linear/RealMatrixImpl.java": [["<=", [3028, 3030]]]}, "217": {"src/java/org/apache/commons/math/linear/RealMatrixImpl.java": [["System.arraycopy(subMatrix, 0, data, 0, subMatrix.length)", [22883, 22940]]]}}

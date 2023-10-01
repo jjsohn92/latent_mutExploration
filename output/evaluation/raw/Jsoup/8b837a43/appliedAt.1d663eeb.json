@@ -1,0 +1,1 @@
+{"0": {"src/main/java/org/jsoup/nodes/Attribute.java": [["Validate.notNull(key)", [1655, 1676]]]}, "19": {"src/main/java/org/jsoup/nodes/Attribute.java": [[">=", [6163, 6165]]]}, "28": {"src/main/java/org/jsoup/nodes/Attribute.java": [["Validate.notNull(key)", [2165, 2186]]]}, "33": {"src/main/java/org/jsoup/nodes/Attribute.java": [["oldVal", [3149, 3155]]]}}

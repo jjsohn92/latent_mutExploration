@@ -1,0 +1,1 @@
+{"153": {"allftests": ["org.apache.commons.compress.archivers.tar.SparseFilesTest#testPaxGNU"], "ftests": ["org.apache.commons.compress.archivers.tar.SparseFilesTest#testPaxGNU"], "alletests": [], "etests": [], "mutLoc": [16500, 16502], "oplt": "==", "mutant": "==", "mutOp": ["NEGATE_CONDITIONALS", "negated conditional"]}}

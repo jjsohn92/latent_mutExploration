@@ -1,0 +1,1 @@
+{"3": {"allftests": ["com.fasterxml.jackson.core.util.JsonParserSequenceTest#testClose"], "ftests": ["com.fasterxml.jackson.core.util.JsonParserSequenceTest#testClose"], "alletests": [], "etests": [], "mutLoc": [4236, 4252], "oplt": "delegate.close()", "mutant": "delegate.close()", "mutOp": ["VOID_METHOD_CALLS", "removed call to com/fasterxml/jackson/core/JsonParser::close"]}}
