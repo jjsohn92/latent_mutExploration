@@ -25,18 +25,10 @@ PROJECT_REPOS = {
     'Csv':os.path.join(PROJECT_REPO_DIR, 'commons-csv.git'),
     'Gson':os.path.join(PROJECT_REPO_DIR, 'gson.git'),
     'JacksonCore':os.path.join(PROJECT_REPO_DIR, 'jackson-core.git'),
-    'JacksonDatabind':os.path.join(PROJECT_REPO_DIR, 'jackson-databind.git'),
     'JacksonXml':os.path.join(PROJECT_REPO_DIR, 'jackson-dataformat-xml.git'),
     'Jsoup':os.path.join(PROJECT_REPO_DIR, 'jsoup.git'),
     'JxPath':os.path.join(PROJECT_REPO_DIR, 'commons-jxpath.git')
 }
-
-FILTERED_INCORRECT = False # filter the cases where incorrectly gathered
-if FILTERED_INCORRECT:
-  NEED_TO_FILTER_OPS = ['CRCR1', 'CRCR2', 'CRCR3', 'CRCR4', 'CRCR5', 'CRCR6', 'INLINE_CONSTS']
-else:
-  NEED_TO_FILTER_OPS = None
-
 
 def load_data(fpath):
     with gzip.open(fpath, 'rb') as f:
@@ -179,8 +171,6 @@ def process_and_add_lno_info(
     for mutK, covg_of_muts in covg_data.items():
         mutated_fpath, mutNo = mutK.split("-")
         mutNo = int(mutNo)
-        #if mutK != 'src/main/java/org/apache/commons/math/optimization/MultiStartUnivariateRealOptimizer.java-137':
-        #    continue
         print ('Processing', mutK, revealedAt)
         processed_covg[mutK] = process_and_add_lno_info_pmut(
             None, 
@@ -197,45 +187,6 @@ def process_and_add_lno_info(
             mutated_fpath = mutated_fpath, 
             mutNo = mutNo, 
         )
-        #print("*****", parsed_pos_node_dict['src/main/java/org/apache/commons/lang3/math/NumberUtils.java'][1][575])
-        ####
-        #processed_covg[mutK] = {}
-        #mutated_fpath, mutNo = mutK.split("-")
-        #mutNo = int(mutNo)
-        #mut_appliedAts_info = appliedAts_info[mutated_fpath][str(mutNo)]
-        #for mutLoc, covg_of_a_mut in covg_of_muts.items():
-            #revealedAt_fpath = getRevealedAtFile(mut_appliedAts_info, mutLoc)
-            #lno_revealedAt = getLnoAtCommit(PROJECT_REPOS[project], revealedAt, 
-                #revealedAt_fpath, mutLoc[0], mutLoc[1])[0]
-            ##
-            #try:
-                #build_pos_dict, lno_to_node_dict = parsed_pos_node_dict[revealedAt_fpath]
-            #except KeyError:
-                #try:
-                    #tree = parsed[revealedAt_fpath]
-                #except KeyError:
-                    #try:
-                        #file_content = d_file_contents[revealedAt_fpath]
-                    #except KeyError:
-                        #file_content = git_utils.show_file(
-                            #revealedAt, revealedAt_fpath, PROJECT_REPOS[project])
-                        #d_file_contents[revealedAt_fpath] = file_content
-                    #tree = parser_utils.parse(file_content)
-                    #parsed[revealedAt_fpath] = tree 
-                #build_pos_dict, lno_to_node_dict = parser_utils.build_positon_dict(tree)
-                #parsed_pos_node_dict[revealedAt_fpath] = (build_pos_dict, lno_to_node_dict)
-            ##
-            #new_all_chgd_lnos = getMutLoc_atRevealed(
-                #lno_revealedAt, build_pos_dict, lno_to_node_dict)
-            #min_new_lno, max_new_lno = min(new_all_chgd_lnos), max(new_all_chgd_lnos)
-            ##
-            ##new_mutLoc = (lno_at_revealed, mutLoc[0], mutLoc[1])
-            #new_mutLoc = (f"{min_new_lno}:{max_new_lno}", mutLoc[0], mutLoc[1])
-            ##print ("New mut key", new_mutLoc)
-            #processed_covg[mutK][new_mutLoc] = covg_of_a_mut
-        ##for mutLoc, covg_of_a_mut in covg_of_muts.items():
-        ##    new_mutLoc = (lno_at_revealed, mutLoc[0], mutLoc[1])
-        ##    processed_covg[mutK][new_mutLoc] = covg_of_a_mut
     return processed_covg
 
 def combine_appliedAtInfos(appliedAts_info_a:Dict, appliedAts_info_b:Dict) -> Dict:

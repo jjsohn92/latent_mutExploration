@@ -49,11 +49,6 @@ def getOtherPosAndLength(e:ET.Element) -> Tuple[int, int]:
     other_length = int(e.attrib['other_length'])
     return (other_pos, other_length)
 
-#def getStartAndEndCharCnt(e:ET.Element) -> Tuple[int, int]:
-    ## start from 1 
-    #start = int(e.attrib['pos']) + 1 # start fr
-    #end = start + int(e.attrib['length']) - 1# can be same as start
-    #return start, end 
 def addMissingInfixOps(
     codeTree:ET.ElementTree, 
     prev_file_content:str, 

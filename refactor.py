@@ -3,7 +3,7 @@
 import os, sys
 from typing import List, Dict, Tuple, Set, Union
 import pandas as pd 
-from utils import git_utils, file_utils, mvn_utils, java_utils, ant_d4jbased_utils, ant_mvn_utils
+from utils import git_utils, file_utils, mvn_utils, java_utils, ant_d4jbased_utils
 import time 
 from mutants.pit_mutant import PitMutantCont
 
@@ -255,11 +255,9 @@ class RMinerProcesser():
                         _basename = os.path.basename(_currfile)
                         if basename == _basename: ## temporary
                             new_file = _currfile # found
-                            #print ("\t found by matching basename", new_file, basename, _basename)
+
                             break 
                     assert new_file is not None, basename 
-                    #full_fpath = os.path.join(workdir, new_file)
-                    #currContent = file_utils.readFile(full_fpath) 
                     currContent = git_utils.show_file(currCommit, new_file, workdir)
                 # run gumtree to get the parsing results
                 tree = gumtree.processABFile_gumtree(prevContent, currContent)
@@ -392,34 +390,23 @@ class RMinerProcesser():
     def formulate_mutLRPairs(
         mutLRPairInfo_pfile:Dict[str, Dict], use_sdk:bool = False, 
         which_mutant:str = 'majoir'
-    ) -> Dict[str, Dict[int, Union[MutantCont, PitMutantCont]]]:
+    ) -> Dict[str, Dict[int, PitMutantCont]]:
         mutConts_pfile = {}
         for mutFpath, mutLRPairInfos in mutLRPairInfo_pfile.items():
             if len(mutLRPairInfos) == 0: # nothing:
                 continue 
             mutConts_pfile[mutFpath] = {}
             for mutNo, mutLRPairInfo in mutLRPairInfos.items():
-                if which_mutant == 'major':
-                    mutCont_inst = MutantCont(
-                        mutNo, 
-                        mutLRPairInfo['left'], 
-                        mutLRPairInfo['right'], 
-                        mutLRPairInfo['mutOp'], 
-                        mutLRPairInfo['targeted'], #  
-                        mutFpath,
-                        use_sdk = use_sdk
-                    )
-                else:
-                    mutCont_inst = PitMutantCont(
-                        mutNo, 
-                        mutLRPairInfo['left'], 
-                        mutLRPairInfo['right'], 
-                        mutLRPairInfo['mutOp'], 
-                        mutLRPairInfo['targeted'], #  
-                        mutFpath,
-                        mutLRPairInfo['pos'],
-                        mutLRPairInfo['text'], 
-                    ) 
+                mutCont_inst = PitMutantCont(
+                    mutNo, 
+                    mutLRPairInfo['left'], 
+                    mutLRPairInfo['right'], 
+                    mutLRPairInfo['mutOp'], 
+                    mutLRPairInfo['targeted'], #  
+                    mutFpath,
+                    mutLRPairInfo['pos'],
+                    mutLRPairInfo['text'], 
+                ) 
                 mutConts_pfile[mutFpath][mutNo] = mutCont_inst
         return mutConts_pfile
 
@@ -465,31 +452,6 @@ class RMinerProcesser():
             print ('no fond map...', toplt_loc)
             return (None, None)  # e.g., deleted 
     
-    #@staticmethod
-    #### PIT -> THE SAME
-    #def checkMatching(
-        #foundMapping:pd.Series, 
-        #new_toplt_txt:str, 
-        #contentToCompare:str, # from mutant
-        #tagToCompare:str
-    #) -> bool:
-        #"""
-        #check the found matching
-        #"""
-        #mappedEType = foundMapping.prev_type # from diffMaps, which is based on Gumtree
-        #mappedEContent = new_toplt_txt #foundMapping.prev_content # -> for some cases, this may not work 
-        #if tagToCompare == 'name': # in matcher, only allowed when mutOp = COR & IDENTIFIER...
-            ## the case of COR (<IDENTIFIER(boolean)>)
-            ## for variable renaming, this won't work, but it has to work 
-            #return True
-        #else:
-            #if checkIn(mappedEType, MATCHING_TYPES[tagToCompare]):
-                #if tagToCompare == 'call': 
-                    #return True 
-                #else: # operator, literal, (argument_list -> always None) -> assume the mutation context changed -> so no-longer valid
-                    #return contentToCompare == mappedEContent 
-            #else: # nothing, wrong type -> likely some-mismatch or the changes in the context => false
-                #return False
     @staticmethod
     def checkMatching(
         foundMapping:pd.Series, 
@@ -566,7 +528,7 @@ class RMinerProcesser():
         targetFileContent:str,
         diffMaps:pd.DataFrame, 
         newPath, prevPath, 
-        mutCont:Union[MutantCont, PitMutantCont], 
+        mutCont:PitMutantCont, 
         which_mutant:str
     ) -> None:
         """
@@ -577,13 +539,7 @@ class RMinerProcesser():
         # toplt_txt = mutant text, toplt_loc = mutant injection location info (start_loc, end_loc)
         for i, (toplt_txt, toplt_loc) in enumerate(mutCont.appliedAts[prevPath]): # here... all mutants will be considered regardless of whether they were changed or not, as diffMap itself cover the entire file and appliedAt 
             # toplt_type -> the type of mutated code element  => if the type changed, then there will be no-match
-            if isinstance(mutCont, MutantCont):
-                toplt_type = mutCont.target_node.tag # from srcML
-            elif isinstance(mutCont, PitMutantCont):
-                toplt_type = mutCont.target_node.attrib['type'] # from Gumtree 
-            else:
-                print (f"Invalid mutant containter type: {type(mutCont)}")
-                assert False
+            toplt_type = mutCont.target_node.attrib['type'] # from Gumtree 
             # matching ....
             matchIdx, matchedMap = RMinerProcesser.match(diffMaps, toplt_loc, toplt_type, which_mutant) 
             if matchIdx is None: # the case, when the target was deleted (?) => CURRENTLY, then all the method invocation will be in trouble ... 
@@ -801,7 +757,7 @@ class RMinerProcesser():
 
     @staticmethod 
     def saveAppliedAtInfoOfMuts(
-        mutConts_pfile:Dict[str, Dict[int, Union[PitMutantCont, MutantCont]]], 
+        mutConts_pfile:Dict[str, Dict[int,PitMutantCont]], 
         commit_hash:str, 
         dest:str, 
     ) -> str:
@@ -976,7 +932,7 @@ class RMinerProcesser():
         #targetFilesTracking = {targetFile:[targetFile] for targetFile in targetFiles}
         targetFilesTracking = {targetFile:[targetFile] for targetFile in mutLRPairInfo_pfile.keys()}
         ## formulate mutLRPairInfos per file
-        mutConts_pfile = RMinerProcesser.formulate_mutLRPairs(mutLRPairInfo_pfile, use_sdk = use_sdk, which_mutant = which_mutant)
+        mutConts_pfile = RMinerProcesser.formulate_mutLRPairs(mutLRPairInfo_pfile, use_sdk = use_sdk)
         survivedMuts = {fpath:list(mutConts_pfile[fpath].keys()) for fpath in mutConts_pfile}
         revealedMuts = {targetFile:{} for targetFile in targetFilesTracking.keys()}
         #mutDeadAts = {fpath:{_no:None for _no in mutConts_pfile[fpath]} for fpath in mutConts_pfile}
@@ -1054,20 +1010,6 @@ class RMinerProcesser():
                 print ("in gumtree part")
                 print ("Currently survived", sum([len(vs) for vs in survivedMuts.values()]))
                 continue # here, no need to process further
-            ####
-            ## temp -7/1
-            # update the files to track
-            #fileUpdates = {} # local file update
-            #for prev_fpath, curr_fpath in diffMaps.keys(): # prev_fpath -> one d, the filesToInspect
-            #    try:
-            #        fileUpdates[(prev_fpath, filesToInspect[prev_fpath])].append(curr_fpath)
-            #    except KeyError:
-            #        fileUpdates[(prev_fpath, filesToInspect[prev_fpath])] = [curr_fpath]
-            ## extension & the files where all mutants were revealed will also be removed
-            #updateFileTracking(targetFilesTracking, fileUpdates, survivedMuts)
-            #continue ## skip to the next
-            ######
-            ####
             refactorings = RMinerProcesser.readRefactoringFile(dstRefactorJSONFile) # for later analysis ..?
             if refactorings.shape[0] > 0:
                 refactoringOccurred[currCommit] = refactorings # for saving
@@ -1082,9 +1024,6 @@ class RMinerProcesser():
                 mvn_utils.preprocess_lang(workdir) # move TypeUtilTests
             ###############
             junit_ver, use_junit4 = None, None # since we no longer use major
-            #junit_ver = mvn_utils.get_junit_version(mvn_utils.get_pom_file(workdir))
-            #print (f'Checkout done, now in {currCommit[:8]} & running with junit {junit_ver}')
-            #use_junit4 = mvn_utils.is_eqOrHigherThanJunit4(junit_ver)
             # also testing without any mutation 
             print ("Testing...")
             # filesToTest -> for the current commit, meaning based on RMiner result

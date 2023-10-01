@@ -5,13 +5,6 @@ import os, sys
 from typing import List, Dict, Tuple, Set 
 from .git_utils import get_repo, getCommitedDateTime
 
-#MUT_TYPES = {
-    #"sc_c":0, 
-    #"sc_nc":1, 
-    #"rc_c":2, 
-    #"rc_nc":3, 
-    #"nc_nc":4 
-#}
 
 def getBidRevDict(d4j_home:str, project:str, get_buggy:bool = False) -> Tuple[Dict[int,str], Dict[str,int]]:
     active_bugfile = os.path.join(d4j_home, f"framework/projects/{project}/active-bugs.csv")
