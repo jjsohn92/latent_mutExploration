@@ -2,7 +2,7 @@ import os, sys
 import pandas as pd 
 from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from typing import List, Dict, Tuple 
+from typing import List, Dict, Tuple, Union
 import numpy as np 
 sys.path.append("../")
 from utils import analysis_utils 
@@ -139,16 +139,76 @@ def main_reveal_pred(feature_dir:str, gtdir:str, projects:List[str],
 
 def random_reveal_pred(feature_dir:str, gtdir:str, projects:List[str], 
   key_cols:List[str], gt_col:str, 
-  thr:float, prob:bool = True, random_state:int = 0, idx_to_reveal_label:int = 0): 
+  thr:float, prob:bool = True, random_state:int = 0, idx_to_reveal_label:int = 0, 
+  as_ZeroR:bool = False, per_project:bool = False): 
+
+  def pred_by_zeroRule(data:pd.DataFrame, per_project:bool = False, prob:bool = False) -> Union[Dict, np.ndarray]:
+    """
+    reveal:0, surv:1, dead:2 
+    """
+    label_kv = {'reveal':0, 'surv': 1, 'dead':2}
+    if per_project:
+      predcs = {}
+      for project, df_proj in data.groupby('project'):
+        label_freq = {0:0, 1:0, 2:0}
+        cnt_df = df_proj.groupby('status')['status'].count()
+        for label_k, label_v in cnt_df.items():
+          label_freq[label_kv[label_k]] = label_v/len(df_proj)
+        # to further ensure the sum to 1
+        label_freq[2] = 1. - label_freq[0] - label_freq[1]
+        _predcs = np.random.choice(3, size = len(df_proj), p = [label_freq[0], label_freq[1], label_freq[2]])
+        if prob:
+          _prob_predcs = np.zeros((len(df_proj), 3))
+          for i,_pred in enumerate(_predcs):
+            _prob_predcs[i,_pred] = 1. 
+          _predcs = list(_prob_predcs)
+        #if prob:
+        #  #_predcs /= len(df_proj)
+        #  pred_probs = []
+        #  ...
+        predcs[project] = _predcs
+        #predcs = np.append(predcs, proj_predcs)
+      return predcs  
+    else: # five fold -> we will simply take all 
+      label_freq = {0:0, 1:0, 2:0}
+      cnt_df = data.groupby('status')['status'].count()
+      for label_k, label_v in cnt_df.items():
+        label_freq[label_kv[label_k]] = label_v 
+      # to further ensure the sum to 1
+      label_freq[2] = 1. - label_freq[0] - label_freq[1]
+      predcs = np.random.choice(3, size = len(data), p = [label_freq[0], label_freq[1], label_freq[2]])
+      if prob:
+        prob_predcs = np.zeros((len(data), 3))
+        for i, pred in enumerate(predcs):
+          prob_predcs[i, pred] = 1. 
+        predcs = list(prob_predcs)
+      return predcs  
+
   # all: get data
   data = get_feature_and_gt_all(feature_dir, gtdir, projects, key_cols, [], gt_col, thr, which = 'reveal') 
   # evaluate 
   np.random.seed(random_state)
-  if prob:
-    predcs = np.random.dirichlet([1,1,1], size = len(data))
+  if not as_ZeroR:
+    if prob:
+      predcs = np.random.dirichlet([1,1,1], size = len(data))
+    else:
+      predcs = np.random.choice(3, len(data))
   else:
-    predcs = np.random.choice(3, len(data))
-  data['pred'] = list(predcs)
+    predcs = pred_by_zeroRule(data, per_project = per_project, prob = prob)
+  
+  if not per_project:
+    data['pred'] = predcs
+  else:
+    #for p,v in predcs.items():
+    #  print (p, len(v))
+    data_w_predcs = []
+    for project, df_proj in data.groupby('project'):
+      #print (df_proj.shape)
+      #print (predcs[project].shape)
+      df_proj['pred'] = predcs[project]
+      data_w_predcs.append(df_proj)
+    data = pd.concat(data_w_predcs)
+  print (data)
   bal_accs, maps = evaluate_reveal_predc(data, prob = prob, idx_to_reveal_label = idx_to_reveal_label)
   return None, (bal_accs, maps), data
 
@@ -175,8 +235,8 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("-p", "--project", type = str)
   parser.add_argument("-d", "--dest", type = str)
-  parser.add_argument("-gt", "--gtdir", type = str, default = "../output/evaluation/combined_v3")
-  parser.add_argument("-feature", "--feature_dir", type = str, default = "../output/evaluation/features_v3")
+  parser.add_argument("-gt", "--gtdir", type = str, default = "../output/evaluation/processed")#combined_v3")
+  parser.add_argument("-feature", "--feature_dir", type = str, default = "../output/evaluation/features")#_v3")
   parser.add_argument("-thr", "--threshold", type = int, default = 365)
   parser.add_argument("-rd", "--compute_random", action ="store_true")
   parser.add_argument("-s", "--seed", type = int, default = 0)
@@ -184,8 +244,10 @@ if __name__ == "__main__":
   args = parser.parse_args() 
 
   project = args.project 
-  feature_dir = args.feature_dir 
-  gtdir = args.gtdir
+  #feature_dir = args.feature_dir 
+  #gtdir = args.gtdir
+  feature_dir = '/Users/jeongju.sohn/workdir/mutBugInducing/output/evaluation/features_v3'
+  gtdir = '/Users/jeongju.sohn/workdir/mutBugInducing/output/evaluation/combined_v3'
   dest = args.dest 
   os.makedirs(dest, exist_ok=True)
 
@@ -231,7 +293,11 @@ if __name__ == "__main__":
     print ("=============================================")
 
     _, _, rd_output = random_reveal_pred(feature_dir, gtdir, projects, 
-      ['bid', 'mutK'], gt_col, threshold, prob = prob, random_state = random_state, idx_to_reveal_label = 0)
+      ['bid', 'mutK'], gt_col, threshold, prob = prob, random_state = random_state, idx_to_reveal_label = 0, 
+      # new
+      as_ZeroR=True, 
+      per_project = True
+    )
     formatted_output = format_output(rd_output, gt_col)
     dest = get_destdir(dest, featureK, 'rd')
     dest = os.path.join(dest, str(args.seed))

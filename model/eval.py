@@ -233,6 +233,9 @@ def format_output(output:pd.DataFrame, gt_col:str) -> pd.DataFrame:
   output['prob_1'] = prob_1
   output['prob_2'] = prob_2
   output['pred_label'] = pred_labels
+  #print (pred_labels)
+  #print ("---")
+  #sys.exit()
   #to_save = output[['project', 'bid', 'mutK', 'mutOp', 'lno', 'status', gt_col, 'label', 'pred_label', 'prob_0', 'prob_1', 'prob_2']]
   to_save = output # save all
   return to_save 
