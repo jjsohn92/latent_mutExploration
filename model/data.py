@@ -47,6 +47,7 @@ def get_data(feature_dir:str, project:str) -> pd.DataFrame:
   for feature_file in glob.glob(os.path.join(feature_dir,f"{project}_*.chg_features.json")):
     bid = int(os.path.basename(feature_file).split(".")[0].split("_")[1])
     df = pd.read_json(feature_file)
+    if len(df) == 0: print (feature_file); continue
     df['bid'] = [int(bid)] * len(df)
     df['mutOp'] = df.mutOp.apply(lambda v:MUTOPS.index(v)).values  # for later 
     dfs.append(df)
@@ -65,7 +66,6 @@ def get_gts(gtdir:str, project:str, gt_col:str, thr:int) -> pd.DataFrame:
 def get_gts_for_reveal(gtdir:str, project:str, gt_col:str, thr:int) -> pd.DataFrame:
   gt_file = os.path.join(gtdir, f"{project}.indv_mut_propagation_status_and_debt.csv")
   gts = pd.read_csv(gt_file)
-  print ("++", gts.columns)
   gts = gts[~(gts.status == 'nowhere')]
   gts['mutOp'] = gts.mutOp.apply(lambda v:MUTOPS.index(v)).values # for later 
   
@@ -86,5 +86,5 @@ def get_gts_for_reveal(gtdir:str, project:str, gt_col:str, thr:int) -> pd.DataFr
 
   ## combine 
   combined_df = pd.concat([surv_df, reveal_df, dead_df], ignore_index=True)
-  print (len(surv_df) + len(reveal_df) + len(dead_df))
+  #print (len(surv_df) + len(reveal_df) + len(dead_df))
   return combined_df
