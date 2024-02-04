@@ -37,10 +37,14 @@ def check_file_exist(commit_hash:str, file_path:str, repo_path:str) -> bool:
 
 def get_full_fpath(commit_hash:str, partial_file_path:str, repo_path:str, class_id:str = None) -> str:
     import subprocess 
+    from subprocess import CalledProcessError
     cmd = f"git ls-tree -r {commit_hash} | grep '{partial_file_path}'" 
-    output = subprocess.check_output(
-        cmd, shell = True, cwd = repo_path
-        ).decode('utf-8', 'backslashreplace')
+    try:
+        output = subprocess.check_output(
+            cmd, shell = True, cwd = repo_path
+            ).decode('utf-8', 'backslashreplace')
+    except CalledProcessError:
+        return None 
     cands =[]
     for line in output.split("\n"):
         if not bool(line): continue
@@ -59,7 +63,6 @@ def get_full_fpath(commit_hash:str, partial_file_path:str, repo_path:str, class_
             if cand.endswith(class_id):
                 return cand 
         return None 
-    return bool(output) 
 
 def show_file(commit_hash:str, file_path:str, repo_path:str) -> str:
     """
