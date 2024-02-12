@@ -252,7 +252,7 @@ def run_w_pit(
         else:
             ant_or_mvn = 'mvn'
             kwargs = {}
-
+            
         revealedMuts, survivedMuts, mutDeadAts, refactoringOccurred = propagator.MutantPropagator.run(
             cp_work_dir, 
             mutLRPair_pmut_pfile,
