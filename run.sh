@@ -13,8 +13,9 @@ dest=$3
 workdir=$4 # checkout under this directory
 propagate=$5 
 
+echo $D4J_HOME
 if [ ! -z $propagate ]; then 
-    python3.9 main.py -p $project -b $bid -w $workdir -dst $dest  -propagate # only run mutation testing
+    echo "python3 main.py -p $project -b $bid -w $workdir -dst $dest  -propagate" # only run mutation testing
 else
-    python3.9 main.py -p $project -b $bid -w $workdir -dst $dest
+    echo "python3 main.py -p $project -b $bid -w $workdir -dst $dest"
 fi
