@@ -14,7 +14,7 @@ workdir=$4 # checkout under this directory
 propagate=$5 
 
 if [ ! -z $propagate ]; then 
-    python3.9 main.py -p $project -b $bid -w $workdir -dst $dest  -propagate # only run mutation testing
+    python3 main.py -p $project -b $bid -w $workdir -dst $dest  -propagate # only run mutation testing
 else
-    python3.9 main.py -p $project -b $bid -w $workdir -dst $dest
+    python3 main.py -p $project -b $bid -w $workdir -dst $dest
 fi
